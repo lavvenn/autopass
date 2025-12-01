@@ -1,0 +1,31 @@
+stages:
+  - lint
+  - test
+
+lint-black:
+  stage: lint
+  before_script:
+    - pip install -r requirements/lints.txt
+  script:
+    - python3 -m black --check --diff
+  rules:
+    - if: &CI_COMMIT_BRANCH == "main" || &CI_COMMIT_BRANCH == "develop"
+
+lint-flake8:
+  stage: lint
+  before_script:
+    - pip install -r requirements/lints.txt
+  script:
+    - python3 -m flake8 .
+  rules:
+    - if: &CI_COMMIT_BRANCH == "main" || &CI_COMMIT_BRANCH == "develop"
+
+test-job:
+  stage: test
+  script:
+    - echo "There will be tests"
+  needs:
+    - "lint-black"
+    - "lint-flake8"
+  rules:
+    - if: &CI_COMMIT_BRANCH == "main" || &CI_COMMIT_BRANCH == "develop"
