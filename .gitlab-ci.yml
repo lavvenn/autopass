@@ -1,0 +1,33 @@
+stages:
+  - lint
+  - test
+
+flake8:
+  stage: lint
+  image: registry.gitlab.com/pipeline-components/flake8:latest
+  script:
+    - pip install -r requirements/lints.txt
+    - flake8 .
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+  allow_failure: false
+
+
+black:
+  stage: lint
+  image: registry.gitlab.com/pipeline-components/black:latest
+  variables:
+    TMPDIR: "/tmp"
+    TEMP: "/tmp"
+    TMP: "/tmp"
+  script:
+    - black --diff --check .
+
+
+django:
+  stage: test
+  script:
+    - pip install -r requirements/test.txt
+    - cd lyceum
+    - python3 manage.py test

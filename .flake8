@@ -1,0 +1,30 @@
+[flake8]
+exclude =
+    # Папки
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    env,
+    .env,
+    dist,
+    build,
+    .tox,
+    
+    # Файлы
+    *.pyc,
+    *.egg-info,
+    .cache,
+    .coverage,
+    
+    # Специфичные директории
+    migrations/,
+    legacy_code/,
+    generated/,
+    
+    # Временные файлы
+    *.tmp,
+    *.bak,
+    *.swp
+max-line-length = 88
+max-complexity = 12
