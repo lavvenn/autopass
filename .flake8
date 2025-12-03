@@ -28,3 +28,10 @@ exclude =
     *.swp
 max-line-length = 88
 max-complexity = 12
+inline-quotes = double
+requirements-files = 
+    requirements/lints.txt
+    requirements/prod.txt
+    requirements/develop.txt
+    requirements/test.txt
+    pyproject.toml
