@@ -1,33 +1,17 @@
+[flake8-expression-complexity]
+max-expression-complexity = 15
+
 [flake8]
 exclude =
-    # Папки
-    .git,
-    __pycache__,
-    .venv,
-    venv,
-    env,
+    */migrations/,
+    .venv/,
+    prod_venv/,
+    venv/,
     .env,
-    dist,
-    build,
-    .tox,
-    
-    # Файлы
-    *.pyc,
-    *.egg-info,
-    .cache,
-    .coverage,
-    
-    # Специфичные директории
-    migrations/,
-    legacy_code/,
-    generated/,
-    
-    # Временные файлы
-    *.tmp,
-    *.bak,
-    *.swp
+    .git,
+    __pycache__
+
 max-line-length = 88
-max-complexity = 12
 inline-quotes = double
 requirements-files = 
     requirements/lints.txt
@@ -35,3 +19,6 @@ requirements-files =
     requirements/develop.txt
     requirements/test.txt
     pyproject.toml
+import-order-style = google
+application-import-names = autopass, users
+
