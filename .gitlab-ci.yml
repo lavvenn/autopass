@@ -1,0 +1,59 @@
+stages:
+  - lint_no_python
+  - lint
+  - test
+
+flake8:
+  stage: lint
+  image: registry.gitlab.com/pipeline-components/flake8:latest
+  script:
+    - pip install -r requirements/lints.txt
+    - flake8 . --config .flake8
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+  allow_failure: false
+
+
+black:
+  stage: lint
+  image: registry.gitlab.com/pipeline-components/black:latest
+  variables:
+    TMPDIR: "/tmp"
+    TEMP: "/tmp"
+    TMP: "/tmp"
+  script:
+    - black --diff --check .
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+
+
+django:
+  stage: test
+  script:
+    - pip install -r requirements/develop.txt
+    - cd autopass
+    - python3 manage.py test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+
+markdown:
+  stage: lint_no_python
+  script:
+    - pip install pymarkdownlnt==0.9.32
+    - pymarkdown --disable-rules md034,md013 scan README.md
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+
+requirements:
+  stage: lint_no_python
+  script:
+    - pip install sort-requirements==1.3.0
+    - cd requirements
+    - sort-requirements prod.txt develop.txt test.txt lints.txt --check
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
