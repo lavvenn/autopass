@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # created apps
+    "passes.apps.PassConfig",
 ]
 
 MIDDLEWARE = [
