@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 class Pass(django.db.models.Model):
 
     class RatingChoices(django.db.models.TextChoices):
-        NotVerify = "NotUnVerify", _("Не проверен")
+        NotVerify = "NotVerify", _("Не проверен")
         Verify = "Verify", _("Проверен")
         Printed = "Printed", _("Нейтрально")
 
