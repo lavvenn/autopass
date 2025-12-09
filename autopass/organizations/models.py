@@ -14,20 +14,36 @@ class Institution(django.db.models.Model):
     name = django.db.models.CharField(
         "название учебного заведения",
         max_length=255,
+        unique=True,
     )
     short_name = django.db.models.CharField(
         "краткое название",
         max_length=50,
+        unique=True,
     )
-    information = django.db.models.CharField(
+    information = django.db.models.TextField(
         "описание",
-        max_length=5000,
+        validators=[
+            django.core.validators.MaxLengthValidator(
+                limit_value=5000,
+            ),
+        ],
     )
     logo = django.db.models.ImageField(
         "логотип учебного заведения",
         upload_to="institutions/",
         blank=True,
         null=True,
+        validators=[
+            django.core.validators.FileExtensionValidator(
+                allowed_extensions=[
+                    "png",
+                    "jpg",
+                    "svg",
+                ],
+                message="Недопустимый формат изображения",
+            ),
+        ],
     )
     admin = django.db.models.ForeignKey(
         "CustomUser",
@@ -38,12 +54,6 @@ class Institution(django.db.models.Model):
 
     def __str__(self):
         return self.short_name
-    
-    def save(self, *args, **kwargs):
-        if not self.pk and not self.creator:
-            # take user from request
-            pass
-        super().save(*args, **kwargs)
 
 
 class Group(django.db.models.Model):
