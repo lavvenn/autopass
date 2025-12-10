@@ -39,4 +39,19 @@ class GroupCreateView(
 ):
     """Создание учебной группы"""
 
+    model = models.Group
+    form_class = forms.CreateGroupForm
+    template_name = "create_group.html"
+    success_url = django.urls.reverse_lazy("")
 
+    def form_valid(self, form):
+        group = form.save(commit=False)
+        group.curator = self.request.user
+        group.save()
+
+        return django.http.HttpResponseRedirect(self.get_success_url())
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
