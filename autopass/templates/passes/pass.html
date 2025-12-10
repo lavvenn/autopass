@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=`, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    {% if messages %}
+        <ul class="list-group">
+            {% for message in messages %}
+            {% if message.tags == "success" %}<li class="list-group-item bg-success">{{ message }}</li>{% endif %}
+        <li class="list-group-item bg-danger">{{ message }}</li>\
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+
+  <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% for field in form %}
+          <div class="form-group">
+              {{ field.label_tag }}
+              {{ field }}
+              {% if field.errors %}
+                  <div class="text-danger">{{ field.errors }}</div>
+              {% endif %}
+              {% if field.help_text %}
+                  <small class="form-text text-muted">{{ field.help_text }}</small>
+              {% endif %}
+          </div>
+          {% endfor %}
+          <button type="submit" class="btn btn-primary"> ОТПРАВИТЬ </button>
+  </form>
+
+    
+</body>
+</html>

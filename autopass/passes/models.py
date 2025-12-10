@@ -19,7 +19,7 @@ class Pass(django.db.models.Model):
     status = django.db.models.CharField(
         "статус",
         choices=RatingChoices,
-        default="received",
+        default="NotUnVerify",
     )
     user = django.db.models.OneToOneField(
         django.contrib.auth.models.User,
