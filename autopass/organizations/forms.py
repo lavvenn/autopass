@@ -80,3 +80,48 @@ class CreateInstitutionForm(django.forms.ModelForm):
             )
 
         return short_name
+
+
+class CreateGroupForm(django.forms.ModelForm):
+    """Форма для создания учебной группы"""
+
+    class Meta:
+        model = models.Group
+        fields = [
+            "name",
+            "course",
+        ]
+        widgets = {
+            "name": django.forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Введите название группы",
+                },
+            ),
+        }
+        labels = {
+            "name": "Название  группы",
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.user:
+            instance.curator = self.user
+
+        if commit:
+            instance.save()
+
+        return instance
+
+    def clean(self):
+        name = self.cleaned_data["name"]
+        if len(name) <= 2:
+            raise django.forms.ValidationError(
+                message="Название должно быть больше 2 символов.",
+            )
+
+        return name

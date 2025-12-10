@@ -31,3 +31,12 @@ class InstitutionCreateView(
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs
+
+
+class GroupCreateView(
+    django.contrib.auth.mixins.LoginRequiredMixin,
+    django.views.generic.CreateView,
+):
+    """Создание учебной группы"""
+
+

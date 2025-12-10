@@ -1,5 +1,6 @@
 __all__ = ["Group", "Institution"]
 
+import datetime
 import django.core.validators
 import django.db.models
 
@@ -76,9 +77,11 @@ class Group(django.db.models.Model):
             ),
             django.core.validators.MaxValueValidator(6, "Курс не может быть больше 6"),
         ],
+        default=1,
     )
     year = django.db.models.DateField(
         "год поступления",
+        default=datetime.datetime.date,
     )
     curator = django.db.models.ForeignKey(
         "CustomUser",
