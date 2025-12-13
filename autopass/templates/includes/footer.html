@@ -1,0 +1,27 @@
+{% load i18n %}
+{% with request.resolver_match.view_name as view_name %}
+  <footer class="py-3 my-4">
+
+
+    <div class="text-center text-body-secondary">&copy; <span id="years">{% now "c" %}</span>
+      Company, Inc
+    </div>
+  </footer>
+{% endwith %}
+
+
+<script>
+  function Time() {
+    const server = new Date("{% now 'Y-m-d\\TH:i:s' %}Z").getTime();
+    const client = Date.now();
+    const diff = Math.abs(client - server)
+    const diff_hours = diff / (1000 * 60 * 60)
+    if (diff_hours <= 24) {
+      return new Date(client).getFullYear();
+    } else {
+      return new Date(server).getFullYear();
+    }
+  }
+
+  document.getElementById("years").innerHTML = Time();
+</script>

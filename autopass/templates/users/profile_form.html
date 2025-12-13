@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="bi bi-camera me-2"></i>Загрузка фото для пропуска
+                        </h4>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="alert alert-info mb-4">
+                            <h5><i class="bi bi-info-circle me-2"></i>Как загрузить фото:</h5>
+                            <ol class="mb-0">
+                                <li>Выберите фото ниже</li>
+                                <li>Перетащите квадрат на область с лицом</li>
+                                <li>Нажмите "Сохранить фото"</li>
+                            </ol>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-4">
+                                    <label class="form-label"><strong>1. Выберите фото:</strong></label>
+                                    <input type="file" id="photo-input" accept="image/*" class="form-control">
+                                    <small class="text-muted">Поддерживаются JPG, PNG. Минимум 300×300 пикселей</small>
+                                </div>
+
+                                <div id="crop-section" style="display: none;">
+                                    <div class="mb-4">
+                                        <label class="form-label"><strong>2. Выберите область:</strong></label>
+                                        <div class="border rounded p-2 bg-light" style="position: relative;">
+                                            <img id="image-preview" style="max-width: 100%; max-height: 500px;">
+                                        </div>
+                                        <small class="text-muted">
+                                            Перетаскивайте квадрат для выбора области с лицом
+                                        </small>
+                                    </div>
+
+                                    <div class="btn-group mb-4" role="group">
+                                        <button type="button" class="btn btn-outline-secondary" id="zoom-in">
+                                            <i class="bi bi-zoom-in"></i> Увеличить
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" id="zoom-out">
+                                            <i class="bi bi-zoom-out"></i> Уменьшить
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" id="reset-crop">
+                                            <i class="bi bi-arrow-clockwise"></i> Сбросить
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div id="save-section" style="display: none;">
+                                    <button type="button" id="save-btn" class="btn btn-success btn-lg">
+                                        <i class="bi bi-check-circle"></i> Сохранить фото для пропуска
+                                    </button>
+
+                                    <div id="upload-status" class="mt-3" style="display: none;">
+                                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                            <span class="visually-hidden">Загрузка...</span>
+                                        </div>
+                                        <span class="ms-2">Сохраняем фото...</span>
+                                    </div>
+
+                                    <div id="success-message" class="alert alert-success mt-3" style="display: none;">
+                                        <i class="bi bi-check-circle"></i> Фото успешно сохранено!
+                                    </div>
+
+                                    <div id="error-message" class="alert alert-danger mt-3" style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i> <span id="error-text"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <strong>Предпросмотр (300×300):</strong>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <div id="preview-300x300"
+                                             class="border rounded mx-auto"
+                                             style="width: 300px; height: 300px; overflow: hidden; background: #f8f9fa;">
+                                            <canvas id="final-preview" width="300" height="300"></canvas>
+                                        </div>
+                                        <small class="text-muted mt-2 d-block">
+                                            Так будет выглядеть ваше фото
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div class="card">
+                                    <div class="card-header">
+                                        <strong><i class="bi bi-exclamation-circle me-2"></i>Требования:</strong>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="mb-0">
+                                            <li>Лицо должно быть хорошо видно</li>
+                                            <li>Нейтральный фон</li>
+                                            <li>Хорошее освещение</li>
+                                            <li>Без головных уборов</li>
+                                            <li>Формат: JPG, PNG</li>
+                                            <li>Размер: минимум 300×300</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <link href="{% static 'css/cropper.min.css' %}" rel="stylesheet">
+    <script src="{% static 'js/cropper.min.js' %}"></script>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrfToken = getCookie('csrftoken');
+        let cropper = null;
+        let isProcessing = false;
+
+        const photoInput = document.getElementById('photo-input');
+        const cropSection = document.getElementById('crop-section');
+        const saveSection = document.getElementById('save-section');
+        const imagePreview = document.getElementById('image-preview');
+        const finalPreview = document.getElementById('final-preview');
+        const saveBtn = document.getElementById('save-btn');
+        const uploadStatus = document.getElementById('upload-status');
+        const successMessage = document.getElementById('success-message');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+
+        photoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.match('image/jpeg') && !file.type.match('image/png')) {
+                showError('Пожалуйста, выберите JPEG или PNG файл');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                cropSection.style.display = 'block';
+                saveSection.style.display = 'block';
+
+                if (cropper) {
+                    cropper.destroy();
+                }
+
+                cropper = new Cropper(imagePreview, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    autoCropArea: 0.8,
+                    ready: updatePreview,
+                    crop: updatePreview
+                });
+
+                successMessage.style.display = 'none';
+                errorMessage.style.display = 'none';
+            };
+
+            reader.onerror = function() {
+                showError('Ошибка чтения файла');
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        function updatePreview() {
+            if (!cropper) return;
+
+            const canvas = cropper.getCroppedCanvas({
+                width: 300,
+                height: 300,
+                fillColor: '#fff',
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high'
+            });
+
+            if (canvas) {
+                const ctx = finalPreview.getContext('2d');
+                ctx.clearRect(0, 0, 300, 300);
+                ctx.drawImage(canvas, 0, 0, 300, 300);
+            }
+        }
+
+        document.getElementById('zoom-in').addEventListener('click', () => cropper && cropper.zoom(0.1));
+        document.getElementById('zoom-out').addEventListener('click', () => cropper && cropper.zoom(-0.1));
+        document.getElementById('reset-crop').addEventListener('click', () => cropper && cropper.reset());
+
+        saveBtn.addEventListener('click', function() {
+            if (!cropper || isProcessing) return;
+
+            cropper.getCroppedCanvas({
+                width: 300,
+                height: 300,
+                fillColor: '#fff'
+            }).toBlob(function(blob) {
+                const formData = new FormData();
+                formData.append('avatar', blob, `avatar_${Date.now()}.jpg`);
+
+                isProcessing = true;
+                saveBtn.disabled = true;
+                uploadStatus.style.display = 'block';
+                errorMessage.style.display = 'none';
+
+                fetch('{% url "users:upload-avatar-api" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-CSRFToken': csrfToken }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            successMessage.style.display = 'block';
+                            setTimeout(() => {
+                                window.location.href = '{% url "users:login-curator" %}';
+                            }, 2000);
+                        } else {
+                            showError(data.message || 'Ошибка при сохранении');
+                        }
+                    })
+                    .catch(error => showError('Ошибка сети: ' + error.message))
+                    .finally(() => {
+                        isProcessing = false;
+                        saveBtn.disabled = false;
+                        uploadStatus.style.display = 'none';
+                    });
+            }, 'image/jpeg', 0.9);
+        });
+
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+    </script>
+
+    <style>
+        .cropper-view-box {
+            outline: 3px solid #2196f3 !important;
+            outline-offset: -2px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3) !important;
+        }
+        .cropper-line {
+            background-color: #2196f3 !important;
+        }
+        .cropper-point {
+            background-color: #2196f3 !important;
+            width: 12px !important;
+            height: 12px !important;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .spinner-border {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+    </style>
+{% endblock %}

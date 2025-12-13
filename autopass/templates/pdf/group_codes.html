@@ -1,34 +1,34 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <style>
-        body { font-family: Arial, sans-serif; }
-        h1 { text-align: center; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid black; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-    </style>
-</head>
-<body>
-    <h1>Группа: {{ group.name }}</h1>
-    <p>Дата: {% now "d.m.Y H:i" %}</p>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: Arial, sans-serif; }
+            h1 { text-align: center; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid black; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+        </style>
+    </head>
+    <body>
+        <h1>Группа: {{ group.name }}</h1>
+        <p>Дата: {% now "d.m.Y H:i" %}</p>
 
-    <table>
-        <tr>
-            <th>№</th>
-            <th>ФИО</th>
-            <th>Код доступа</th>
-        </tr>
-        {% for user in users %}
-        <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ user.last_name }} {{ user.first_name }} {{ user.middle_name }}</td>
-            <td>{{ user.username }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+        <table>
+            <tr>
+                <th>№</th>
+                <th>фио</th>
+                <th>Код доступа</th>
+            </tr>
+            {% for user in users %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ user.last_name }} {{ user.first_name }} {{ user.middle_name }}</td>
+                    <td>{{ user.username }}</td>
+                </tr>
+            {% endfor %}
+        </table>
 
-    <p style="margin-top: 30px;">Всего учеников: {{ users|length }}</p>
-</body>
+        <p style="margin-top: 30px;">Всего учеников: {{ users|length }}</p>
+    </body>
 </html>

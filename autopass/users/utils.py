@@ -19,6 +19,7 @@ def create_student(*args, group_id=0):
             user = django.contrib.auth.models.User.objects.create_user(
                 username=token,
                 password=token,
+                is_active=True,
                 first_name=args[1],
                 last_name=args[0],
             )
@@ -26,9 +27,10 @@ def create_student(*args, group_id=0):
             if len(args) == 3:
                 middle_name = args[2]
 
-            users.models.ProfileStudent.objects.create(
+            users.models.Profile.objects.create(
                 user=user,
                 middle_name=middle_name,
+                role="ученик",
             )
             group, created = django.contrib.auth.models.Group.objects.get_or_create(
                 id=group_id,
@@ -54,7 +56,8 @@ def read_file(file_path, delimiter=","):
 
 def get_file(file_path, group_name=None, delimiter=","):
     file = read_file(file_path, delimiter=delimiter)
-    if len(file.lines) >= 200 or len(file.columns) >= 30:
+    rows, cols = file.shape
+    if rows >= 200 or cols >= 30:
         raise ValueError("Привышен лимит учеников")
 
     fio_columns = [col for col in file.columns if "фио" in col.lower()]

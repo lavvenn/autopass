@@ -10,7 +10,7 @@ exclude =
     .env,
     .git,
     __pycache__
-
+ignore = AZ100, W503
 max-line-length = 88
 inline-quotes = double
 requirements-files = 
