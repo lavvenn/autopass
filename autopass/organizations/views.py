@@ -2,6 +2,7 @@ __all__ = ["InstitutionCreateView"]
 
 import datetime
 import django.contrib.auth.mixins
+import django.core.exceptions
 import django.http
 import django.urls
 import django.views.generic
@@ -102,4 +103,40 @@ class GroupListView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["user_role"] = self.request.user.role
+        return context
+
+
+class GroupDetailView(
+    django.contrib.auth.mixins.LoginRequiredMixin,
+    django.views.generic.DetailView,
+):
+    """Просмотр группы"""
+
+    model = models.Group
+    template_name = "group_detail.html"
+    context_object_name = "group"
+
+    def dispatch(self, request, *args, **kwargs):
+        group = self.get_object()
+        user = request.user
+
+        if not (
+            group.curator == user
+            or (user.role == "admin" and group.institution.admin == user)
+        ):
+            raise django.core.exceptions.PermissionDenied(
+                "У вас недостаточно прав для просмотра этой страницы",
+            )
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        group = context["group"]
+
+        try:
+            context["students"] = group.students.all().select_related("user")
+        except AttributeError:
+            context["students"] = []
+
         return context
