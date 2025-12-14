@@ -13,13 +13,10 @@ urlpatterns = [
         views.GroupCreateView.as_view(),
         name="create_group",
     ),
-    django.urls.path(
-        "group/list",
-        views.GroupListView.as_view(),
-        name="group_list"
-    ),
+    django.urls.path("group/list", views.GroupListView.as_view(), name="group_list"),
     django.urls.path(
         "group/<int:pk>",
-        views.
-    )
+        views.GroupDetailView.as_view(),
+        name="group_detail",
+    ),
 ]
