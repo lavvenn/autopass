@@ -47,7 +47,7 @@ class Institution(django.db.models.Model):
         ],
     )
     admin = django.db.models.ForeignKey(
-        "CustomUser",
+        "User",
         verbose_name="администратор организации",
         on_delete=django.db.models.CASCADE,
         related_name="created_institutions",
@@ -81,10 +81,10 @@ class Group(django.db.models.Model):
     )
     year = django.db.models.DateField(
         "год поступления",
-        default=datetime.datetime.date,
+        default=datetime.datetime.year,
     )
     curator = django.db.models.ForeignKey(
-        "CustomUser",
+        "User",
         verbose_name="куратор",
         on_delete=django.db.models.CASCADE,
         related_name="curated_groups",

@@ -105,7 +105,14 @@ class CreateGroupForm(django.forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user", None)
+        self.institution = kwargs.pop("institution", None)
         super().__init__(*args, **kwargs)
+
+        if self.institution:
+            self.fields["institution"].initial = self.institution
+
+        if self.user and self.user.role == "curator":
+            pass
 
     def save(self, commit=True):
         instance = super().save(commit=False)
