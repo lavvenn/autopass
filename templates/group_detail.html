@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Группа {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="mb-4">Группа: {{ group.name }}</h1>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Информация о группе</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Учебное заведение:</strong> {{ group.institution.short_name }}</p>
+                    <p><strong>Курс:</strong> {{ group.course }}</p>
+                    <p><strong>Год поступления:</strong> {{ group.year|date:"Y" }}</p>
+                    <p><strong>Куратор:</strong> {{ group.curator.get_full_name|default:group.curator.username }}</p>
+                    <p><strong>Описание:</strong> <br>
+                        {# Предполагается, что у Group есть поле 'description' или подобное #}
+                        {% if group.description %}
+                            {{ group.description|linebreaksbr }}
+                        {% else %}
+                            <span class="text-muted">Описание отсутствует.</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Действия</h5>
+                </div>
+                <div class="card-body">
+                    <p>Здесь будут кнопки для управления пропусками:</p>
+                    <a href="{% url 'passes:curator_review' group.pk %}" class="btn btn-success me-2">
+                        Просмотреть пропуски на одобрение
+                    </a>
+                    <a href="{% url 'organizations:group_edit' group.pk %}" class="btn btn-outline-primary">
+                        Редактировать группу
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="mb-3">Студенты группы ({{ students|length }})</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        {% if students %}
+            {% for student_profile in students %}
+                {# Предполагается, что students - это StudentProfile объекты, и у них есть поле user #}
+                {% with student=student_profile.user %}
+                <div class="col-md-4 mb-4">
+                    <div class="card student-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ student.get_full_name|default:student.username }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Студент</h6>
+                            <p class="card-text">
+                                <strong>Номер студенческого:</strong> {{ student_profile.student_id|default:"Не указан" }}<br>
+                                <strong>Email:</strong> {{ student.email }}
+                            </p>
+                            {# Ссылка на детальный просмотр студента или его пропусков #}
+                            <a href="{% url 'passes:student_passes' student.pk %}" class="btn btn-sm btn-outline-info">
+                                Просмотр пропусков
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endwith %}
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info" role="alert">
+                    В этой группе пока нет зарегистрированных студентов.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
