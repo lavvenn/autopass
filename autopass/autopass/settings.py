@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+MAX_AUTH_ATTEMPTS = 5
+
 
 load_dotenv()
 
@@ -111,7 +113,7 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
-DEFAULT_USER_IS_ACTIVE = is_true(os.getenv("DJANGO_DEFAULT_USER_IS_ACTIVE", 'false'))
+DEFAULT_USER_IS_ACTIVE = is_true(os.getenv("DJANGO_DEFAULT_USER_IS_ACTIVE", "false"))
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = BASE_DIR / "send_mail"

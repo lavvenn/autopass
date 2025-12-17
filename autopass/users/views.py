@@ -28,7 +28,7 @@ class SignUpView(django.views.generic.View):
             request,
             "users/signup.html",
             {
-                "personal_form": personal_form,
+                "form": personal_form,
             },
         )
 
@@ -54,13 +54,13 @@ class SignUpView(django.views.generic.View):
                     fail_silently=False,
                 )
 
-            return django.shortcuts.redirect("users:login")
+            return django.shortcuts.redirect("users:login-curator")
 
         return django.shortcuts.render(
             request,
             "users/signup.html",
             {
-                "personal_form": personal_form,
+                "form": personal_form,
             },
         )
 

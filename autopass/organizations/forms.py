@@ -111,7 +111,7 @@ class CreateGroupForm(django.forms.ModelForm):
         if self.institution:
             self.fields["institution"].initial = self.institution
 
-        if self.user and self.user.role == "curator":
+        if self.user and self.user.profile.role == "curator":
             pass
 
     def save(self, commit=True):

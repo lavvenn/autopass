@@ -20,15 +20,15 @@ class InstitutionCreateView(
 
     model = organizations.models.Institution
     form_class = organizations.forms.CreateInstitutionForm
-    template_name = "institution_form.html"
-    success_url = django.urls.reverse_lazy("")
+    template_name = "organizations/institution_form.html"
+    success_url = django.urls.reverse_lazy("organizations:create_institution")
 
     def form_valid(self, form):
         institution = form.save(commit=False)
         institution.admin = self.request.user
         institution.save()
 
-        return django.http.HttpResponseRedirect(self.get_success_url())
+        return super().form_valid(form)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -44,8 +44,8 @@ class GroupCreateView(
 
     model = organizations.models.Group
     form_class = organizations.forms.CreateGroupForm
-    template_name = "create_group.html"
-    success_url = django.urls.reverse_lazy("")
+    template_name = "organizations/create_group.html"
+    success_url = django.urls.reverse_lazy("organizations:create_group")
 
     def form_valid(self, form):
         group = form.save(commit=False)
@@ -54,13 +54,11 @@ class GroupCreateView(
         group.year = datetime.datetime.now().year
         group.save()
 
-        return django.http.HttpResponseRedirect(self.get_success_url())
+        return super().form_valid(form)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
-        kwargs["course"] = 1
-        kwargs["year"] = datetime.datetime.now().year
         return kwargs
 
 
@@ -71,16 +69,16 @@ class GroupListView(
     """Список групп"""
 
     model = organizations.models.Group
-    template_name = "group_list.html"
+    template_name = "organizations/group_list.html"
     context_object_name = "groups"
 
     def get_queryset(self):
         user = self.request.user
 
-        if user.role not in ["curator", "administrator"]:
+        if user.profile.role not in ["curator", "administrator"]:
             return self.model.objects.none()
 
-        if user.role == "administrator":
+        if user.profile.role == "administrator":
             try:
                 institution = organizations.models.Institution.objects.get(admin=user)
                 return self.model.objects.filter(
@@ -93,7 +91,7 @@ class GroupListView(
             except organizations.models.Institution.DoesNotExist:
                 return self.model.objects.none()
 
-        elif user.role == "curator":
+        elif user.profile.role == "curator":
             return user.curated_groups.all().select_related(
                 "institution",
                 "curator",
@@ -103,7 +101,7 @@ class GroupListView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["user_role"] = self.request.user.role
+        context["user_role"] = self.request.user.profile.role
         return context
 
 
@@ -114,7 +112,7 @@ class GroupDetailView(
     """Просмотр группы"""
 
     model = organizations.models.Group
-    template_name = "group_detail.html"
+    template_name = "organizations/group_detail.html"
     context_object_name = "group"
 
     def dispatch(self, request, *args, **kwargs):
@@ -123,7 +121,7 @@ class GroupDetailView(
 
         if not (
             group.curator == user
-            or (user.role == "admin" and group.institution.admin == user)
+            or (user.profile.role == "admin" and group.institution.admin == user)
         ):
             raise django.core.exceptions.PermissionDenied(
                 "У вас недостаточно прав для просмотра этой страницы",

@@ -2,6 +2,8 @@ import django.urls
 
 import organizations.views
 
+app_name = "organizations"
+
 urlpatterns = [
     django.urls.path(
         "institution/create",

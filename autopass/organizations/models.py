@@ -84,7 +84,7 @@ class Group(django.db.models.Model):
     )
     year = django.db.models.DateField(
         "год поступления",
-        default=datetime.datetime.year,
+        default=datetime.datetime.now().year,
     )
     curator = django.db.models.ForeignKey(
         users.models.User,
