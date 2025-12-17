@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     # created apps
     "passes.apps.PassConfig",
     "users.apps.UsersConfig",
+    "homepage.apps.HomepageConfig",
     "organizations.apps.OrganizationsConfig",
 ]
 
