@@ -8,9 +8,8 @@ import django.http
 import django.urls
 import django.views.generic
 
-import forms
-
-import models
+import organizations.forms
+import organizations.models
 
 
 class InstitutionCreateView(
@@ -19,8 +18,8 @@ class InstitutionCreateView(
 ):
     """Создание учебного заведения"""
 
-    model = models.Institution
-    form_class = forms.CreateInstitutionForm
+    model = organizations.models.Institution
+    form_class = organizations.forms.CreateInstitutionForm
     template_name = "institution_form.html"
     success_url = django.urls.reverse_lazy("")
 
@@ -43,8 +42,8 @@ class GroupCreateView(
 ):
     """Создание учебной группы"""
 
-    model = models.Group
-    form_class = forms.CreateGroupForm
+    model = organizations.models.Group
+    form_class = organizations.forms.CreateGroupForm
     template_name = "create_group.html"
     success_url = django.urls.reverse_lazy("")
 
@@ -71,7 +70,7 @@ class GroupListView(
 ):
     """Список групп"""
 
-    model = models.Group
+    model = organizations.models.Group
     template_name = "group_list.html"
     context_object_name = "groups"
 
@@ -83,7 +82,7 @@ class GroupListView(
 
         if user.role == "administrator":
             try:
-                institution = models.Institution.objects.get(admin=user)
+                institution = organizations.models.Institution.objects.get(admin=user)
                 return self.model.objects.filter(
                     institution=institution,
                 ).select_related(
@@ -91,7 +90,7 @@ class GroupListView(
                     "curator",
                 )
 
-            except models.Institution.DoesNotExist:
+            except organizations.models.Institution.DoesNotExist:
                 return self.model.objects.none()
 
         elif user.role == "curator":
@@ -114,7 +113,7 @@ class GroupDetailView(
 ):
     """Просмотр группы"""
 
-    model = models.Group
+    model = organizations.models.Group
     template_name = "group_detail.html"
     context_object_name = "group"
 

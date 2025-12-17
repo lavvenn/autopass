@@ -1,22 +1,22 @@
 import django.urls
 
-import views
+import organizations.views
 
 urlpatterns = [
     django.urls.path(
         "institution/create",
-        views.InstitutionCreateView.as_view(),
+        organizations.views.InstitutionCreateView.as_view(),
         name="create_institution",
     ),
     django.urls.path(
         "group/create",
-        views.GroupCreateView.as_view(),
+        organizations.views.GroupCreateView.as_view(),
         name="create_group",
     ),
-    django.urls.path("group/list", views.GroupListView.as_view(), name="group_list"),
+    django.urls.path("group/list", organizations.views.GroupListView.as_view(), name="group_list"),
     django.urls.path(
         "group/<int:pk>",
-        views.GroupDetailView.as_view(),
+        organizations.views.GroupDetailView.as_view(),
         name="group_detail",
     ),
 ]

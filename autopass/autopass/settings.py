@@ -30,7 +30,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # created apps
     "passes.apps.PassConfig",
-    "organizations",
+    "users.apps.UsersConfig",
+    "organizations.apps.OrganizationsConfig",
 ]
 
 MIDDLEWARE = [

@@ -3,14 +3,14 @@ __all__ = ["CreateInstitutionForm"]
 import django.core.validators
 import django.forms
 
-import models
+import organizations.models
 
 
 class CreateInstitutionForm(django.forms.ModelForm):
     """Форма для создания учебного заведения"""
 
     class Meta:
-        model = models.Institution
+        model = organizations.models.Institution
         fields = [
             "name",
             "short_name",
@@ -86,7 +86,7 @@ class CreateGroupForm(django.forms.ModelForm):
     """Форма для создания учебной группы"""
 
     class Meta:
-        model = models.Group
+        model = organizations.models.Group
         fields = [
             "name",
             "course",

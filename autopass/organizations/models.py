@@ -5,6 +5,8 @@ import datetime
 import django.core.validators
 import django.db.models
 
+import users.models
+
 
 class Institution(django.db.models.Model):
     """Учебное заведение"""
@@ -48,7 +50,7 @@ class Institution(django.db.models.Model):
         ],
     )
     admin = django.db.models.ForeignKey(
-        "User",
+        users.models.User,
         verbose_name="администратор организации",
         on_delete=django.db.models.CASCADE,
         related_name="created_institutions",
@@ -85,7 +87,7 @@ class Group(django.db.models.Model):
         default=datetime.datetime.year,
     )
     curator = django.db.models.ForeignKey(
-        "User",
+        users.models.User,
         verbose_name="куратор",
         on_delete=django.db.models.CASCADE,
         related_name="curated_groups",
