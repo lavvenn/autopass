@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "organizations.apps.OrganizationsConfig",
 ]
 
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -46,6 +47,14 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+if DEBUG:
+    INSTALLED_APPS.append("debug_toolbar")
+
+    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+
+    INTERNAL_IPS = ["127.0.0.1"]
+
 
 ROOT_URLCONF = "autopass.urls"
 
@@ -124,7 +133,11 @@ APPEND_SLASH = True
 
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+
+if DEBUG:
+    MEDIA_ROOT = BASE_DIR / "dev_media"
+else:
+    MEDIA_ROOT = BASE_DIR / "media"
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

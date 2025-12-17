@@ -111,9 +111,6 @@ class CreateGroupForm(django.forms.ModelForm):
         if self.institution:
             self.fields["institution"].initial = self.institution
 
-        if self.user and self.user.profile.role == "curator":
-            pass
-
     def save(self, commit=True):
         instance = super().save(commit=False)
         if self.user:
@@ -125,10 +122,13 @@ class CreateGroupForm(django.forms.ModelForm):
         return instance
 
     def clean(self):
-        name = self.cleaned_data["name"]
-        if len(name) <= 2:
-            raise django.forms.ValidationError(
-                message="Название должно быть больше 2 символов.",
+        cleaned_data = super().clean()
+        name = cleaned_data.get("name")
+
+        if name and len(name) <= 2:
+            self.add_error(
+                "name",
+                "Название должно быть больше 2 символов.",
             )
 
-        return name
+        return cleaned_data

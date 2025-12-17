@@ -1,10 +1,7 @@
 __all__ = ["InstitutionCreateView"]
 
-import datetime
-
 import django.contrib.auth.mixins
 import django.core.exceptions
-import django.http
 import django.urls
 import django.views.generic
 
@@ -51,7 +48,6 @@ class GroupCreateView(
         group = form.save(commit=False)
         group.curator = self.request.user
         group.course = 1
-        group.year = datetime.datetime.now().year
         group.save()
 
         return super().form_valid(form)

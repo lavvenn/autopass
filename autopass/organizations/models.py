@@ -84,7 +84,7 @@ class Group(django.db.models.Model):
     )
     year = django.db.models.DateField(
         "год поступления",
-        default=datetime.datetime.now().year,
+        default=datetime.date(datetime.datetime.now().year, 1, 1),
     )
     curator = django.db.models.ForeignKey(
         users.models.User,
@@ -100,6 +100,8 @@ class Group(django.db.models.Model):
         verbose_name="учебное заведение",
         on_delete=django.db.models.CASCADE,
         related_name="groups",
+        null=True,
+        blank=True,
     )
 
     def __str__(self):
