@@ -96,8 +96,33 @@ USE_I18N = True
 
 USE_TZ = True
 
+STATIC_ROOT = BASE_DIR / "static"
+STATICFILES_DIRS = [BASE_DIR / "static_dev"]
+STATIC_URL = "/static/"
 
-STATIC_URL = "static/"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LOGIN_URL = "/users/login/student"
+LOGIN_REDIRECT_URL = "/users/login/student"
+LOGOUT_REDIRECT_URL = "/users/login/student"
+
+AUTHENTICATION_BACKENDS = [
+    "users.backends.EmailOrUsernameModelBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+DEFAULT_USER_IS_ACTIVE = is_true(os.getenv("DJANGO_DEFAULT_USER_IS_ACTIVE", 'false'))
+
+EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+EMAIL_FILE_PATH = BASE_DIR / "send_mail"
+
+DEFAULT_FROM_EMAIL = os.getenv("DJANGO_MAIL", "example@example.com")
+APPEND_SLASH = True
+
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
