@@ -11,6 +11,8 @@ exclude =
     dist,
     build,
     .tox,
+    */migrations/
+
     
     # Файлы
     *.pyc,
