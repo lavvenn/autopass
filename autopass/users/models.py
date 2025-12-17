@@ -4,7 +4,6 @@ import sys
 import django.contrib.auth
 import django.contrib.auth.models
 import django.db.models
-import django.views.generic
 
 
 user = django.contrib.auth.get_user_model()
@@ -14,16 +13,6 @@ if "makemigrations" not in sys.argv and "migrate" not in sys.argv:
 
 
 class UserManager(django.contrib.auth.models.UserManager):
-    def active(self):
-        return self.get_queryset().filter(is_active=True).select_related("profile")
-
-    def by_mail(self, email):
-        if not email:
-            return None
-
-        return (
-            self.get_queryset().filter(email__iexact=email, email__isnull=False).first()
-        )
 
     @classmethod
     def normalize_email(cls, email):
@@ -40,6 +29,17 @@ class UserManager(django.contrib.auth.models.UserManager):
             local = local.replace(".", "")
 
         return f"{local}@{domain}"
+
+    def by_mail(self, email):
+        if not email:
+            return None
+
+        return (
+            self.get_queryset().filter(email__iexact=email, email__isnull=False).first()
+        )
+
+    def active(self):
+        return self.get_queryset().filter(is_active=True).select_related("profile")
 
 
 class User(django.contrib.auth.models.User):

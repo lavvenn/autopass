@@ -30,7 +30,7 @@ exclude =
     *.bak,
     *.swp
 max-line-length = 88
-max-complexity = 12
+max-expression-complexity = 12
 inline-quotes = double
 requirements-files = 
     requirements/lints.txt
