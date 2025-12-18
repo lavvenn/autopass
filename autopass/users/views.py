@@ -33,7 +33,7 @@ class SignUpView(django.views.generic.View):
             request,
             "users/signup.html",
             {
-                "form": personal_form,
+                "personal_form": personal_form,
             },
         )
 
@@ -65,7 +65,7 @@ class SignUpView(django.views.generic.View):
             request,
             "users/signup.html",
             {
-                "form": personal_form,
+                "personal_form": personal_form,
             },
         )
 
