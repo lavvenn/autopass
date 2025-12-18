@@ -1,9 +1,9 @@
 __all__ = ()
 
 import django.conf
+from django.conf.urls.static import static
 import django.contrib
 import django.urls
-from django.conf.urls.static import static
 
 urlpatterns = [
     django.urls.path("", django.urls.include("homepage.urls")),

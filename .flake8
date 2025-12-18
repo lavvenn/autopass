@@ -1,40 +1,23 @@
+[flake8-expression-complexity]
+max-expression-complexity = 15
+
 [flake8]
 exclude =
-    # Папки
-    .git,
-    __pycache__,
-    .venv,
-    venv,
-    myenv,
-    env,
+    */migrations/,
+    .venv/,
+    prod_venv/,
+    venv/,
     .env,
-    dist,
-    build,
-    .tox,
-    */migrations/
-
-    
-    # Файлы
-    *.pyc,
-    *.egg-info,
-    .cache,
-    .coverage,
-    
-    # Специфичные директории
-    migrations/,
-    legacy_code/,
-    generated/,
-    
-    # Временные файлы
-    *.tmp,
-    *.bak,
-    *.swp
+    .git,
+    __pycache__
+ignore = AZ100, W503
 max-line-length = 88
-max-expression-complexity = 12
 inline-quotes = double
-requirements-files = 
+requirements-files =
     requirements/lints.txt
     requirements/prod.txt
     requirements/develop.txt
     requirements/test.txt
     pyproject.toml
+import-order-style = google
+application-import-names = autopass, users, organizations, card_maker, passes, homepage

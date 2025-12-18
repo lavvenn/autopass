@@ -4,10 +4,7 @@ import secrets
 import django.contrib.auth.models
 import django.db
 import django.template.loader
-
-
 import pandas
-
 
 import users.models
 

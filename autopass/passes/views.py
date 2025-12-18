@@ -1,11 +1,10 @@
 __all__ = ()
 
-import card_maker.card_maker
-
 import django.contrib
 import django.urls
 import django.views.generic
 
+import card_maker.card_maker
 import passes.forms
 import passes.models
 
