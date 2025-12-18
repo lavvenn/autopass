@@ -2,18 +2,18 @@
 {% load static %}
 
 {% block content %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="mb-0">Регистрация</h4>
-                    </div>
-                    <div class="card-body">
-                        {% include "includes/form.html" with form=personal_form button_text="Зарегистрироваться" %}
-                    </div>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Регистрация</h4>
+                </div>
+                <div class="card-body">
+                    {% include "includes/form.html" with form=personal_form button_text="Зарегистрироваться" %}
                 </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}
