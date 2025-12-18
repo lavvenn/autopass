@@ -1,4 +1,9 @@
-__all__ = ["InstitutionCreateView"]
+__all__ = [
+    "InstitutionCreateView",
+    "GroupCreateView",
+    "GroupListView",
+    "GroupDetailView",
+]
 
 import django.contrib.auth.mixins
 import django.core.exceptions
@@ -129,9 +134,7 @@ class GroupDetailView(
         context = super().get_context_data(**kwargs)
         group = context["group"]
 
-        try:
-            context["students"] = group.students.all().select_related("user")
-        except AttributeError:
-            context["students"] = []
+        # Используем свойство students из модели
+        context["students"] = group.students
 
         return context

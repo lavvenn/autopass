@@ -1,9 +1,11 @@
-__all__ = ("Profile", "User", "UserManager")
+__all__ = ("Profile", "User", "UserManager", "GroupLeader")
 import sys
 
 import django.contrib.auth
 import django.contrib.auth.models
 import django.db.models
+import django.db.models.signals
+import django.dispatch
 
 
 user = django.contrib.auth.get_user_model()
@@ -103,3 +105,46 @@ class GroupLeader(django.db.models.Model):
         related_name="led_groups",
     )
     created_at = django.db.models.DateTimeField(auto_now_add=True)
+
+
+@django.dispatch.receiver(django.db.models.signals.post_save, sender=GroupLeader)
+def sync_group_leader_on_save(sender, instance, created, **kwargs):
+    """Синхронизировать organizations.models.Group при создании GroupLeader"""
+    if created:
+        # Проверяем, есть ли уже organizations.models.Group для этого auth_group
+        try:
+            import organizations.models
+
+            org_group = organizations.models.Group.objects.get(
+                auth_group=instance.group,
+            )
+            # Обновляем куратора если нужно
+            if org_group.curator != instance.curator:
+                org_group.curator = instance.curator
+                org_group.save()
+        except organizations.models.Group.DoesNotExist:
+            # Создаем organizations.models.Group если его нет
+            try:
+                import organizations.models
+
+                # Ищем группу с таким именем без auth_group
+                try:
+                    org_group = organizations.models.Group.objects.get(
+                        name=instance.group.name,
+                        auth_group__isnull=True,
+                    )
+                    # Связываем существующую группу с auth_group
+                    org_group.auth_group = instance.group
+                    org_group.curator = instance.curator
+                    org_group.save()
+                except organizations.models.Group.DoesNotExist:
+                    # Создаем новую группу
+                    organizations.models.Group.objects.create(
+                        name=instance.group.name,
+                        curator=instance.curator,
+                        course=1,
+                        auth_group=instance.group,
+                    )
+            except Exception:
+                # Игнорируем ошибки при синхронизации
+                pass

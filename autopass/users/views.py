@@ -21,6 +21,7 @@ import django.utils.decorators
 import django.utils.timezone
 import django.views.generic
 
+import organizations.models
 import users.forms
 import users.models
 import users.utils
@@ -199,6 +200,7 @@ class UploadStudentsView(django.views.generic.FormView):
         uploaded_file = form.cleaned_data["file"]
         delimiter = form.cleaned_data["delimiter"] or ","
 
+        # Проверяем существование групп в обеих системах
         try:
             django.contrib.auth.models.Group.objects.get(name=group_name)
             form.add_error(
@@ -207,6 +209,16 @@ class UploadStudentsView(django.views.generic.FormView):
             )
             return self.form_invalid(form)
         except django.contrib.auth.models.Group.DoesNotExist:
+            pass
+
+        try:
+            organizations.models.Group.objects.get(name=group_name)
+            form.add_error(
+                "group_name",
+                f"Группа с названием '{group_name}' уже существует",
+            )
+            return self.form_invalid(form)
+        except organizations.models.Group.DoesNotExist:
             pass
 
         with tempfile.NamedTemporaryFile(
@@ -219,15 +231,24 @@ class UploadStudentsView(django.views.generic.FormView):
             temp_file_path = temp_file.name
 
         try:
-            group = django.contrib.auth.models.Group.objects.create(name=group_name)
+            # Создаем organizations.models.Group, который синхронизирует Django auth Group
+            org_group = organizations.models.Group.objects.create(
+                name=group_name,
+                curator=self.request.user,
+                course=1,
+            )
+            # sync_auth_group вызывается сигналом, но убедимся что он создан
+            org_group.sync_auth_group()
+            auth_group = org_group.auth_group
 
             users.utils.get_file(
                 file_path=temp_file_path,
                 group_name=group_name,
                 delimiter=delimiter,
             )
-            users.models.GroupLeader.objects.create(
-                group=group,
+            # GroupLeader должен быть создан сигналом, но проверим
+            users.models.GroupLeader.objects.get_or_create(
+                group=auth_group,
                 curator=self.request.user,
             )
             django.core.mail.send_mail(
@@ -248,9 +269,16 @@ class UploadStudentsView(django.views.generic.FormView):
                 ),
             )
 
-        except Exception:
-            group.delete()
-            form.add_error("file", "Ошибка файла")
+        except Exception as e:
+            # Удаляем созданные группы при ошибке
+            try:
+                if "org_group" in locals():
+                    org_group.delete()
+                elif "group" in locals():
+                    group.delete()
+            except Exception:
+                pass
+            form.add_error("file", f"Ошибка файла: {str(e)}")
             return self.form_invalid(form)
 
         finally:
