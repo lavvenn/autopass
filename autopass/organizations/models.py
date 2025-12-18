@@ -2,8 +2,11 @@ __all__ = ["Group", "Institution"]
 
 import datetime
 
+import django.contrib.auth.models
 import django.core.validators
 import django.db.models
+import django.db.models.signals
+import django.dispatch
 
 import users.models
 
@@ -103,6 +106,79 @@ class Group(django.db.models.Model):
         null=True,
         blank=True,
     )
+    auth_group = django.db.models.OneToOneField(
+        django.contrib.auth.models.Group,
+        verbose_name="группа Django",
+        on_delete=django.db.models.CASCADE,
+        related_name="org_group",
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
-        return f"{self.name} ({self.institution.short_name})"
+        institution_name = (
+            self.institution.short_name if self.institution else "Без организации"
+        )
+        return f"{self.name} ({institution_name})"
+
+    @property
+    def students(self):
+        """Получить всех студентов группы через Django auth Group"""
+        if self.auth_group:
+            return users.models.Profile.objects.filter(
+                user__groups=self.auth_group,
+                role="ученик",
+            ).select_related("user")
+        return users.models.Profile.objects.none()
+
+    def sync_auth_group(self):
+        """Синхронизировать Django auth Group с этой группой"""
+        if not self.auth_group:
+            auth_group, created = django.contrib.auth.models.Group.objects.get_or_create(
+                name=self.name,
+            )
+            self.auth_group = auth_group
+            self.save(update_fields=["auth_group"])
+
+            # Создать GroupLeader если его нет
+            if created:
+                users.models.GroupLeader.objects.get_or_create(
+                    group=auth_group,
+                    curator=self.curator,
+                )
+        else:
+            # Обновить название если изменилось
+            if self.auth_group.name != self.name:
+                self.auth_group.name = self.name
+                self.auth_group.save()
+
+            # Синхронизировать куратора
+            try:
+                group_leader = self.auth_group.leader
+                if group_leader.curator != self.curator:
+                    group_leader.curator = self.curator
+                    group_leader.save()
+            except users.models.GroupLeader.DoesNotExist:
+                users.models.GroupLeader.objects.create(
+                    group=self.auth_group,
+                    curator=self.curator,
+                )
+
+
+@django.dispatch.receiver(django.db.models.signals.post_save, sender=Group)
+def sync_group_on_save(sender, instance, created, **kwargs):
+    """Синхронизировать группу при сохранении"""
+    instance.sync_auth_group()
+
+
+@django.dispatch.receiver(django.db.models.signals.pre_delete, sender=Group)
+def sync_group_on_delete(sender, instance, **kwargs):
+    """Удалить связанную Django auth Group при удалении группы"""
+    if instance.auth_group:
+        # Удалить GroupLeader сначала
+        try:
+            instance.auth_group.leader.delete()
+        except users.models.GroupLeader.DoesNotExist:
+            pass
+        # Удалить auth_group
+        instance.auth_group.delete()
