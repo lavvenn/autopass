@@ -134,8 +134,10 @@ class Group(django.db.models.Model):
     def sync_auth_group(self):
         """Синхронизировать Django auth Group с этой группой"""
         if not self.auth_group:
-            auth_group, created = django.contrib.auth.models.Group.objects.get_or_create(
-                name=self.name,
+            auth_group, created = (
+                django.contrib.auth.models.Group.objects.get_or_create(
+                    name=self.name,
+                )
             )
             self.auth_group = auth_group
             self.save(update_fields=["auth_group"])

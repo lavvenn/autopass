@@ -1,42 +1,75 @@
 __all__ = ()
 
+import shutil
+import tempfile
+
 import django.contrib
-import django.urls
 import django.views.generic
 
 import card_maker.card_maker
-import passes.forms
 import passes.models
 
 
-class PassFormView(django.views.generic.FormView):
-    template_name = "passes/pass.html"
-    form_class = passes.forms.PassForm
+class GroupsView(django.views.generic.ListView):
+    template_name = "passes/group.html"
+    context_object_name = "groups"
+    model = django.contrib.auth.models.Group
 
-    success_url = django.urls.reverse_lazy("passes:create")
+    def get_queryset(self):
+        return django.contrib.auth.models.Group.objects.all()
 
-    def form_valid(self, form):
-        user = django.contrib.auth.get_user_model()
-        user_pass = form.save(commit=False)
-        user_pass.user = user.objects.get(pk=self.request.user.id)
-        user_pass = form.save()
 
-        name = f"{self.request.user.first_name} {self.request.user.last_name}"
+class DownloadAllGroupPassesView(django.views.generic.View):
+    def get(self, request, group_id):
 
-        im = card_maker.card_maker.ImageEditor(
-            template_path="template.png",
-            output_path="output",
-            circle_size=(250, 250),
-            photo_position=(50, 100),
-            text_position=(350, 400),
+        group = django.contrib.auth.models.Group.objects.get(pk=group_id)
+        passes_list = passes.models.Pass.objects.filter(
+            user__groups=group,
+            status="Verify",
         )
 
-        im.create_final_image(
-            image_path=passes.models.Pass.objects.get(
-                user=user.objects.get(pk=self.request.user.id),
-            ).photo.path,
-            text=name,
-            final_name=f"{name}.png",
+        print(
+            group.name,
         )
-        django.contrib.messages.success(self.request, "Пропуск сохранён")
-        return super().form_valid(form)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            for pass_obj in passes_list:
+                name = f"{pass_obj.user.first_name} {pass_obj.user.last_name}"
+
+                im = card_maker.card_maker.ImageEditor(
+                    template_path="template.png",
+                    output_path=temp_dir,
+                    circle_size=(250, 250),
+                    photo_position=(50, 100),
+                    text_position=(350, 400),
+                )
+
+                im.create_final_image(
+                    image_path=pass_obj.user.profile.avatar.path,
+                    text=name,
+                    final_name=f"{name}.png",
+                )
+
+            zip_path = f"/tmp/{group.name}.zip"
+            shutil.make_archive(zip_path.replace(".zip", ""), "zip", temp_dir)
+
+            with open(zip_path, "rb") as f:
+                file_content = f.read()
+
+            response = django.http.HttpResponse(
+                file_content,
+                content_type="application/zip",
+            )
+            response["Content-Disposition"] = f'attachment; filename="{group.name}.zip"'
+            return response
+
+
+class PassesGroupView(django.views.generic.ListView):
+    template_name = "passes/passes_group.html"
+    context_object_name = "passes"
+    model = passes.models.Pass
+
+    def get_queryset(self):
+        return passes.models.Pass.objects.filter(
+            user__groups__name="security",
+        )

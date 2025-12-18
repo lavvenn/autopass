@@ -238,4 +238,3 @@ class GroupLeaderTestCase(django.test.TestCase):
 
         # Проверяем, что куратор может получить свои группы через led_groups
         self.assertIn(group_leader, self.curator.led_groups.all())
-

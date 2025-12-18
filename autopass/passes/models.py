@@ -12,10 +12,6 @@ class Pass(django.db.models.Model):
         Verify = "Verify", _("Проверен")
         Printed = "Printed", _("Нейтрально")
 
-    photo = django.db.models.ImageField(
-        upload_to="pass_photo/%Y/%m/%d/",
-        verbose_name=_("Фото на пропуск"),
-    )
     status = django.db.models.CharField(
         "статус",
         choices=RatingChoices,

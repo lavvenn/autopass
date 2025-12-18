@@ -444,4 +444,3 @@ class IntegrationTestCase(django.test.TestCase):
                 group_id=auth_group_id,
             ).exists(),
         )
-

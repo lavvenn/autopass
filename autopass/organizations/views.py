@@ -1,8 +1,8 @@
 __all__ = [
-    "InstitutionCreateView",
     "GroupCreateView",
-    "GroupListView",
     "GroupDetailView",
+    "GroupListView",
+    "InstitutionCreateView",
 ]
 
 import django.contrib.auth.mixins
