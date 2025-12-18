@@ -59,7 +59,7 @@ class SignUpView(django.views.generic.View):
                     fail_silently=False,
                 )
 
-            return django.shortcuts.redirect("users:login")
+            return django.shortcuts.redirect("users:login-curator")
 
         return django.shortcuts.render(
             request,
