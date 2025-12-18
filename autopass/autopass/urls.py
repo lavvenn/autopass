@@ -11,6 +11,7 @@ urlpatterns = [
     django.urls.path("organization/", django.urls.include("organizations.urls")),
     django.urls.path("pass/", django.urls.include("passes.urls")),
     django.urls.path("users/", django.urls.include("users.urls")),
+    django.urls.path("curator/", django.urls.include("curator.urls")),
 ]
 
 

@@ -7,6 +7,7 @@ import django.template.loader
 import pandas
 
 import users.models
+import passes.models
 
 
 def create_student(*args, group_id=0):
@@ -36,6 +37,9 @@ def create_student(*args, group_id=0):
                 id=group_id,
             )
             user.groups.add(group)
+            passes.models.Pass.objects.create(
+                user=user,
+            )
             return token
         except django.db.IntegrityError:
             pass

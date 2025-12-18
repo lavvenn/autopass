@@ -79,10 +79,3 @@ class EmailOrUsernameModelBackend(django.contrib.auth.backends.ModelBackend):
             return User.objects.get(pk=user_id)
         except User.DoesNotExist:
             return None
-
-    def _is_email(self, value):
-        try:
-            django.core.validators.validate_email(value)
-            return True
-        except django.core.exceptions.ValidationError:
-            return False

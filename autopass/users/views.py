@@ -24,6 +24,7 @@ import django.views.generic
 import users.forms
 import users.models
 import users.utils
+import passes.models
 
 
 class SignUpView(django.views.generic.View):
@@ -33,7 +34,7 @@ class SignUpView(django.views.generic.View):
             request,
             "users/signup.html",
             {
-                "form": personal_form,
+                "personal_form": personal_form,
             },
         )
 
@@ -65,7 +66,7 @@ class SignUpView(django.views.generic.View):
             request,
             "users/signup.html",
             {
-                "form": personal_form,
+                "personal_form": personal_form,
             },
         )
 
@@ -165,6 +166,8 @@ class UploadAvatarApiView(django.views.generic.View):
             )
             profile.save()
 
+            passes.models.Pass.objects.filter(user=request.user).update(
+                status="NotVerify",)
             return django.http.JsonResponse(
                 {
                     "status": "success",
@@ -175,7 +178,7 @@ class UploadAvatarApiView(django.views.generic.View):
 
         except Exception:
             return django.http.JsonResponse(
-                {"status": "error", "message": "Ошибка сервера"},
+                {"status": "error", "message": f"Ошибка сервера"},
                 status=500,
             )
 

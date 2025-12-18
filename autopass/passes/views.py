@@ -11,7 +11,6 @@ import passes.models
 
 class PassFormView(django.views.generic.FormView):
     template_name = "passes/pass.html"
-    form_class = passes.forms.PassForm
 
     success_url = django.urls.reverse_lazy("passes:create")
 

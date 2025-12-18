@@ -18,4 +18,4 @@ requirements-files =
     pyproject.toml
 import-order-style = google
 max-expression-complexity = 12
-application-import-names = autopass, users, organizations, card_maker, passes, homepage
+application-import-names = autopass, users, organizations, card_maker, passes, homepage, curator
