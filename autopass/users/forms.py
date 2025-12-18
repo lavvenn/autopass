@@ -140,7 +140,6 @@ class UploadFileForm(django.forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["email"].required = True
         for field in self.visible_fields():
             field.field.widget.attrs.update({"class": "form-control"})
 
