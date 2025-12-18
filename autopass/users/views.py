@@ -5,6 +5,8 @@ __all__ = (
     "UploadAvatarPageView",
 )
 from datetime import timedelta
+import os
+import tempfile
 
 import django.conf
 import django.contrib.auth.decorators
@@ -13,12 +15,14 @@ import django.core.files.base
 import django.core.mail
 import django.http
 import django.shortcuts
+import django.urls
 import django.utils.decorators
 import django.utils.timezone
 import django.views.generic
 
 import users.forms
 import users.models
+import users.utils
 
 
 class SignUpView(django.views.generic.View):
@@ -173,3 +177,117 @@ class UploadAvatarApiView(django.views.generic.View):
                 {"status": "error", "message": "Ошибка сервера"},
                 status=500,
             )
+
+
+@django.utils.decorators.method_decorator(
+    django.contrib.auth.decorators.login_required,
+    name="dispatch",
+)
+class UploadStudentsView(django.views.generic.FormView):
+    template_name = "pdf/upload_students.html"
+    form_class = users.forms.UploadFileForm
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.profile.role != "куратор":
+            return django.http.HttpResponseNotFound()
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        group_name = form.cleaned_data["group_name"]
+        uploaded_file = form.cleaned_data["file"]
+        delimiter = form.cleaned_data["delimiter"] or ","
+
+        try:
+            django.contrib.auth.models.Group.objects.get(name=group_name)
+            form.add_error(
+                "group_name",
+                f"Группа с названием '{group_name}' уже существует",
+            )
+            return self.form_invalid(form)
+        except django.contrib.auth.models.Group.DoesNotExist:
+            pass
+
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=os.path.splitext(uploaded_file.name)[1].lower(),
+        ) as temp_file:
+            for chunk in uploaded_file.chunks():
+                temp_file.write(chunk)
+
+            temp_file_path = temp_file.name
+
+        try:
+            group = django.contrib.auth.models.Group.objects.create(name=group_name)
+
+            users.utils.get_file(
+                file_path=temp_file_path,
+                group_name=group_name,
+                delimiter=delimiter,
+            )
+            users.models.GroupLeader.objects.create(
+                group=group,
+                curator=self.request.user,
+            )
+            django.core.mail.send_mail(
+                subject=f"Создана группа {group_name}",
+                message="Для получения логинов перейдите по ссылке"
+                f" - /users/upload/result/{group_name}",
+                from_email=django.conf.settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[
+                    self.request.user.email,
+                ],
+                fail_silently=False,
+            )
+
+            return django.shortcuts.redirect(
+                django.urls.reverse(
+                    "users:upload-result",
+                    kwargs={"group_name": group_name},
+                ),
+            )
+
+        except Exception:
+            group.delete()
+            form.add_error("file", "Ошибка файла")
+            return self.form_invalid(form)
+
+        finally:
+            if os.path.exists(temp_file_path):
+                os.unlink(temp_file_path)
+
+
+@django.utils.decorators.method_decorator(
+    django.contrib.auth.decorators.login_required,
+    name="dispatch",
+)
+class UploadResultView(django.views.generic.TemplateView):
+    template_name = "pdf/upload_result.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.profile.role != "куратор":
+            return django.http.HttpResponseNotFound()
+
+        group_name = self.kwargs.get("group_name")
+
+        try:
+            group = django.contrib.auth.models.Group.objects.get(name=group_name)
+        except django.contrib.auth.models.Group.DoesNotExist:
+            return django.http.HttpResponseNotFound()
+
+        try:
+            users.models.GroupLeader.objects.get(group=group, curator=request.user)
+        except users.models.GroupLeader.DoesNotExist:
+            return django.http.HttpResponseNotFound()
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        group_name = self.kwargs.get("group_name")
+
+        html_content = users.utils.create_pdf(group_name)
+        context["generated_html"] = html_content
+        context["group_name"] = group_name
+
+        return context

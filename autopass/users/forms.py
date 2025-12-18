@@ -122,3 +122,30 @@ class AvatarUploadForm(django.forms.Form):
             attrs={"accept": "image/*", "class": "form-control", "id": "photo-input"},
         ),
     )
+
+
+class UploadFileForm(django.forms.Form):
+    group_name = django.forms.CharField(
+        label="Название группы",
+        max_length=100,
+        required=True,
+        widget=django.forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "Курс 2025 1"},
+        ),
+    )
+    file = django.forms.FileField(
+        label="Файл с данными учеников",
+        required=True,
+        widget=django.forms.FileInput(
+            attrs={"class": "form-control", "accept": ".csv,.xls,.xlsx,.ods"},
+        ),
+    )
+    delimiter = django.forms.CharField(
+        label="Разделитель CSV (если применимо)",
+        max_length=10,
+        required=False,
+        initial=",",
+        widget=django.forms.TextInput(
+            attrs={"class": "form-control", "placeholder": ","},
+        ),
+    )

@@ -89,3 +89,17 @@ class Profile(django.db.models.Model):
         blank=True,
         verbose_name="время блокировки",
     )
+
+
+class GroupLeader(django.db.models.Model):
+    group = django.db.models.OneToOneField(
+        django.contrib.auth.models.Group,
+        on_delete=django.db.models.CASCADE,
+        related_name="leader",
+    )
+    curator = django.db.models.ForeignKey(
+        django.contrib.auth.models.User,
+        on_delete=django.db.models.CASCADE,
+        related_name="led_groups",
+    )
+    created_at = django.db.models.DateTimeField(auto_now_add=True)
