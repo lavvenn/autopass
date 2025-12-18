@@ -36,7 +36,7 @@ def create_student(*args, group_id=0):
                 id=group_id,
             )
             user.groups.add(group)
-            break
+            return token
         except django.db.IntegrityError:
             pass
 

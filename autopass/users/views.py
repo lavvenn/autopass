@@ -11,6 +11,7 @@ import tempfile
 import django.conf
 import django.contrib.auth.decorators
 import django.contrib.auth.models
+import django.contrib.messages
 import django.core.files.base
 import django.core.mail
 import django.http
@@ -291,3 +292,51 @@ class UploadResultView(django.views.generic.TemplateView):
         context["group_name"] = group_name
 
         return context
+
+
+@django.utils.decorators.method_decorator(
+    django.contrib.auth.decorators.login_required,
+    name="dispatch",
+)
+class ResetStudentsView(django.views.generic.FormView):
+    template_name = "pdf/reset_students.html"
+    form_class = users.forms.ResetStudent
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.profile.role != "куратор":
+            return django.http.HttpResponseNotFound()
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        token = form.cleaned_data["token"]
+        user = users.models.User.objects.filter(username=token)
+        if not user.exists() or (user := user.first()).profile.role != "ученик":
+            form.add_error(
+                "token",
+                "Такой студент не существует или у вас нет прав на его изменения",
+            )
+            return self.form_invalid(form)
+
+        group = user.groups.first()
+        try:
+            users.models.GroupLeader.objects.get(group=group, curator=self.request.user)
+            user.delete()
+            new_token = users.utils.create_student(
+                *[user.last_name, user.first_name, user.profile.middle_name],
+                group_id=group.id,
+            )
+            django.contrib.messages.success(
+                self.request,
+                f"Логин был сброшен. \nДанные обновлены в общей таблице "
+                f"<a href='/users/upload/result/{group.name}/' "
+                f"class='alert-link'>общей таблице</a>. \nНовый логин: {new_token}",
+            )
+            return django.shortcuts.redirect(self.request.path_info)
+        except Exception as e:
+            print(e)
+            form.add_error(
+                "token",
+                "Такой студент не существует или у вас нет прав на его изменения",
+            )
+            return self.form_invalid(form)

@@ -130,14 +130,14 @@ class UploadFileForm(django.forms.Form):
         max_length=100,
         required=True,
         widget=django.forms.TextInput(
-            attrs={"class": "form-control", "placeholder": "Курс 2025 1"},
+            attrs={"placeholder": "Курс 2025 1"},
         ),
     )
     file = django.forms.FileField(
         label="Файл с данными учеников",
         required=True,
         widget=django.forms.FileInput(
-            attrs={"class": "form-control", "accept": ".csv,.xls,.xlsx,.ods"},
+            attrs={"accept": ".csv,.xls,.xlsx,.ods"},
         ),
     )
     delimiter = django.forms.CharField(
@@ -146,6 +146,25 @@ class UploadFileForm(django.forms.Form):
         required=False,
         initial=",",
         widget=django.forms.TextInput(
-            attrs={"class": "form-control", "placeholder": ","},
+            attrs={"placeholder": ","},
         ),
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["email"].required = True
+        for field in self.visible_fields():
+            field.field.widget.attrs.update({"class": "form-control"})
+
+
+class ResetStudent(django.forms.Form):
+    token = django.forms.CharField(
+        label="Уникальный код",
+        max_length=150,
+        required=True,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.visible_fields():
+            field.field.widget.attrs.update({"class": "form-control"})
