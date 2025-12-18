@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+MAX_AUTH_ATTEMPTS = 5
+
 
 load_dotenv()
 
@@ -29,7 +31,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # created apps
+    "passes.apps.PassConfig",
+    "users.apps.UsersConfig",
+    "homepage.apps.HomepageConfig",
+    "organizations.apps.OrganizationsConfig",
 ]
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -41,12 +48,20 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+if DEBUG:
+    INSTALLED_APPS.append("debug_toolbar")
+
+    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+
+    INTERNAL_IPS = ["127.0.0.1"]
+
+
 ROOT_URLCONF = "autopass.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": ["templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -93,8 +108,37 @@ USE_I18N = True
 
 USE_TZ = True
 
+STATIC_ROOT = BASE_DIR / "static"
+STATICFILES_DIRS = [BASE_DIR / "static_dev"]
+STATIC_URL = "/static/"
 
-STATIC_URL = "static/"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LOGIN_URL = "/users/login/student"
+LOGIN_REDIRECT_URL = "/users/login/student"
+LOGOUT_REDIRECT_URL = "/users/login/student"
+
+AUTHENTICATION_BACKENDS = [
+    "users.backends.EmailOrUsernameModelBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+DEFAULT_USER_IS_ACTIVE = is_true(os.getenv("DJANGO_DEFAULT_USER_IS_ACTIVE", "false"))
+
+EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+EMAIL_FILE_PATH = BASE_DIR / "send_mail"
+
+DEFAULT_FROM_EMAIL = os.getenv("DJANGO_MAIL", "example@example.com")
+APPEND_SLASH = True
+
+
+MEDIA_URL = "/media/"
+
+if DEBUG:
+    MEDIA_ROOT = BASE_DIR / "dev_media"
+else:
+    MEDIA_ROOT = BASE_DIR / "media"
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

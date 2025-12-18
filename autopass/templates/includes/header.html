@@ -1,29 +1,73 @@
 {% load static %}
 {% load i18n %}
 {% with request.resolver_match.view_name as view_name %}
-  <header>
-    <div class="px-3 py-2 text-bg-warning border-bottom">
-      <div class="container">
-        <div
-          class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"
+<header>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-warning border-bottom">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="{% url 'homepage:home' %}">
+        <img
+          src="{% static 'favicon/favicon-32x32.ico' %}"
+          alt="Logo"
+          width="32"
+          height="32"
+          class="me-2"
         >
-          <a
-            href="/"
-            class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none "
-          >
-            <img
-              src="{% static 'favicon/favicon-32x32.ico' %}"
-              class="bi me-2"
-              width="40"
-              height="32"
-              role="img"
-              aria-label="Bootstrap"
-            >
-            <use xlink:href="#bootstrap"></use>
-          </a>
+        <span class="fw-semibold text-dark">AutoPass</span>
+      </a>
 
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#mainNavbar"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNavbar">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a
+              class="nav-link {% if view_name == 'homepage:home' %}active{% endif %}"
+              href="{% url 'homepage:home' %}"
+            >
+              Главная
+            </a>
+          </li>
+
+          {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a
+              class="nav-link {% if 'organizations' in view_name %}active{% endif %}"
+              href="{% url 'organizations:group_list' %}"
+            >
+              Организации
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+
+        <div class="d-flex gap-2">
+          {% if user.is_authenticated %}
+            <a href="{% url 'users:profile' %}" class="btn btn-outline-dark btn-sm">
+              {{ user.username }}
+            </a>
+          <form method="post" action="{% url 'users:logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger">logout</button>
+          </form>
+
+          {% else %}
+            <a href="{% url 'users:login-student' %}" class="btn btn-outline-dark btn-sm">
+              Войти
+            </a>
+            <a href="{% url 'users:signup' %}" class="btn btn-dark btn-sm">
+              Регистрация
+            </a>
+          {% endif %}
         </div>
       </div>
-{% endwith %}
-</div>
+    </div>
+  </nav>
 </header>
+{% endwith %}

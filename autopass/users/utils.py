@@ -3,8 +3,11 @@ import secrets
 
 import django.contrib.auth.models
 import django.db
-from django.template.loader import render_to_string
+import django.template.loader
+
+
 import pandas
+
 
 import users.models
 
@@ -115,7 +118,7 @@ def get_file(file_path, group_name=None, delimiter=","):
 def create_pdf(group_name):
     group = django.contrib.auth.models.Group.objects.get(name=group_name)
     users = group.user_set.all()
-    return render_to_string(
+    return django.template.loader.render_to_string(
         "pdf/group_codes.html",
         {
             "group": group,

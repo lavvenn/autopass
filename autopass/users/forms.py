@@ -4,9 +4,8 @@ __all__ = (
     "LoginForm",
     "SignupForm",
 )
+
 import django.contrib.auth
-import django.contrib.auth.forms
-import django.contrib.auth.models
 import django.core.exceptions
 import django.forms
 
@@ -68,25 +67,14 @@ class SignupForm(django.contrib.auth.forms.UserCreationForm):
 
     class Meta(django.contrib.auth.forms.UserCreationForm.Meta):
         model = users.models.User
-        fields = ("username", "email", "password1", "password2")
-        labels = {
-            "username": "Никнейм",
-            "email": "Почта",
-            "password1": "Пароль",
-            "password2": "Повторите пароль",
-        }
-        help_texts = {
-            "name": "Введите ваш никнейм",
-            "email": "Введите почту, к которой вы имеете доступ",
-            "password1": "Придумайте пароль",
-            "password2": "Повторите пароль",
-        }
+        fields = django.contrib.auth.forms.UserCreationForm.Meta.fields
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["email"].required = True
-        for field in self.visible_fields():
-            field.field.widget.attrs.update({"class": "form-control"})
+    def clean_password2(self):
+        cleaned_data = self.cleaned_data
+        if cleaned_data["password1"] != cleaned_data["password2"]:
+            raise django.forms.ValidationError("Пароли не совпадают")
+
+        return cleaned_data["password1"]
 
     def clean(self):
         cleaned_data = super().clean()
