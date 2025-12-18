@@ -122,3 +122,49 @@ class AvatarUploadForm(django.forms.Form):
             attrs={"accept": "image/*", "class": "form-control", "id": "photo-input"},
         ),
     )
+
+
+class UploadFileForm(django.forms.Form):
+    group_name = django.forms.CharField(
+        label="Название группы",
+        max_length=100,
+        required=True,
+        widget=django.forms.TextInput(
+            attrs={"placeholder": "Курс 2025 1"},
+        ),
+    )
+    file = django.forms.FileField(
+        label="Файл с данными учеников",
+        required=True,
+        widget=django.forms.FileInput(
+            attrs={"accept": ".csv,.xls,.xlsx,.ods"},
+        ),
+    )
+    delimiter = django.forms.CharField(
+        label="Разделитель CSV (если применимо)",
+        max_length=10,
+        required=False,
+        initial=",",
+        widget=django.forms.TextInput(
+            attrs={"placeholder": ","},
+        ),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["email"].required = True
+        for field in self.visible_fields():
+            field.field.widget.attrs.update({"class": "form-control"})
+
+
+class ResetStudent(django.forms.Form):
+    token = django.forms.CharField(
+        label="Уникальный код",
+        max_length=150,
+        required=True,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.visible_fields():
+            field.field.widget.attrs.update({"class": "form-control"})

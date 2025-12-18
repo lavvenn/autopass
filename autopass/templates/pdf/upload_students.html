@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-upload me-2"></i>Загрузка учеников из файла
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <h5 class="alert-heading">
+                            <i class="bi bi-info-circle me-2"></i>Информация о загрузке
+                        </h5>
+                        <p>Загрузите файл с данными учеников для автоматического создания учетных записей.</p>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Поддерживаемые форматы:</h6>
+                                <ul class="mb-0">
+                                    <li>CSV (текстовый файл)</li>
+                                    <li>XLS (Excel 97-2003)</li>
+                                    <li>XLSX (Excel 2007+)</li>
+                                    <li>ODS (OpenDocument)</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Требования к файлу:</h6>
+                                <ul class="mb-0">
+                                    <li>Не более 200 учеников</li>
+                                    <li>Столбец "ФИО" <strong>ИЛИ</strong> отдельные столбцы "Фамилия", "Имя", "Отчество"</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                {{ form.group_name.label }}
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.group_name }}
+                            {% if form.group_name.help_text %}
+                                <div class="form-text">{{ form.group_name.help_text }}</div>
+                            {% endif %}
+                            {% if form.group_name.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.group_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                {{ form.file.label }}
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.file }}
+                            {% if form.file.help_text %}
+                                <div class="form-text">{{ form.file.help_text }}</div>
+                            {% endif %}
+                            {% if form.file.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                {{ form.delimiter.label }}
+                            </label>
+                            {{ form.delimiter }}
+                            {% if form.delimiter.help_text %}
+                                <div class="form-text">{{ form.delimiter.help_text }}</div>
+                            {% endif %}
+                            {% if form.delimiter.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.delimiter.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Загрузить и создать учеников</button>
+                    </form>
+
+                    <div class="alert alert-warning mt-4">
+                        <h6>
+                            <i class="bi bi-exclamation-triangle me-2"></i>Важно!
+                        </h6>
+                        <ul class="mb-0">
+                            <li>Для каждого ученика будет создана учетная запись с автоматическим логином и паролем</li>
+                            <li>После загрузки вы сможете распечатать коды доступа для раздачи ученикам</li>
+                            <li>Для получения кодов повторно, вам на почту было отправлено письмо</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

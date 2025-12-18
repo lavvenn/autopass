@@ -32,11 +32,11 @@ def create_student(*args, group_id=0):
                 middle_name=middle_name,
                 role="ученик",
             )
-            group, created = django.contrib.auth.models.Group.objects.get_or_create(
+            group = django.contrib.auth.models.Group.objects.get(
                 id=group_id,
             )
             user.groups.add(group)
-            break
+            return token
         except django.db.IntegrityError:
             pass
 
@@ -66,7 +66,7 @@ def get_file(file_path, group_name=None, delimiter=","):
             if len(fio.split()) not in [2, 3]:
                 raise ValueError("Не все ФИО соответствуют стандарту")
 
-        group_obj, created = django.contrib.auth.models.Group.objects.get_or_create(
+        group_obj = django.contrib.auth.models.Group.objects.get(
             name=group_name,
         )
         group_id = group_obj.id
@@ -96,7 +96,7 @@ def get_file(file_path, group_name=None, delimiter=","):
                 break
 
         if surname_col and name_col and middle_col:
-            group_obj, created = django.contrib.auth.models.Group.objects.get_or_create(
+            group_obj = django.contrib.auth.models.Group.objects.get(
                 name=group_name,
             )
             group_id = group_obj.id

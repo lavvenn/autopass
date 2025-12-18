@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-check-circle me-2"></i>Коды доступа успешно созданы
+                        </h4>
+                        <div class="btn-group">
+                            <a href="{% url 'users:upload-students' %}" class="btn btn-light btn-sm">
+                                <i class="bi bi-arrow-left me-1"></i>Загрузить еще
+                            </a>
+                            <button onclick="printCodes()" class="btn btn-light btn-sm">
+                                <i class="bi bi-printer me-1"></i>Распечатать коды
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+                            <div>
+                                <h5 class="alert-heading mb-1">Группа "{{ group_name }}" успешно создана!</h5>
+                                <p class="mb-0">Нажмите "Распечатать коды" для печати таблицы с кодами доступа.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-none" id="printable-content">
+                        <div style="padding: 20px;">
+                            {% autoescape off %}
+                            {{ generated_html }}
+                            {% endautoescape %}
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'users:upload-students' %}" class="btn btn-primary me-2">
+                            <i class="bi bi-plus-circle me-2"></i>Загрузить еще один файл
+                        </a>
+                        <button onclick="printCodes()" class="btn btn-outline-primary">
+                            <i class="bi bi-printer me-2"></i>Распечатать коды доступа
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function printCodes() {
+    var printContent = document.getElementById('printable-content').innerHTML;
+    var originalContent = document.body.innerHTML;
+
+    document.body.innerHTML = printContent;
+    window.print();
+    document.body.innerHTML = originalContent;
+    window.location.reload();
+}
+</script>
+
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #printable-content, #printable-content * {
+            visibility: visible;
+        }
+        #printable-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

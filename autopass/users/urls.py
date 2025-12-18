@@ -45,4 +45,11 @@ urlpatterns = [
         users.views.UploadAvatarApiView.as_view(),
         name="upload-avatar-api",
     ),
+    path("upload/", users.views.UploadStudentsView.as_view(), name="upload-students"),
+    path(
+        "upload/result/<str:group_name>/",
+        users.views.UploadResultView.as_view(),
+        name="upload-result",
+    ),
+    path("reset/", users.views.ResetStudentsView.as_view(), name="upload-students"),
 ]
