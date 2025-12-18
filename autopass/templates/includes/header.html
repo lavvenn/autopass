@@ -52,9 +52,11 @@
             <a href="{% url 'users:profile' %}" class="btn btn-outline-dark btn-sm">
               {{ user.username }}
             </a>
-            <a href="{% url 'users:logout' %}" class="btn btn-dark btn-sm">
-              Выйти
-            </a>
+          <form method="post" action="{% url 'users:logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger">logout</button>
+          </form>
+
           {% else %}
             <a href="{% url 'users:login-student' %}" class="btn btn-outline-dark btn-sm">
               Войти
