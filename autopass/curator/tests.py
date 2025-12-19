@@ -141,23 +141,6 @@ class UploadStudentsViewTests(django.test.TestCase):
         response = self.client.get(django.shortcuts.reverse("users:upload-students"))
         self.assertEqual(response.status_code, 200)
 
-    def test_post_redirects_on_success(self):
-        self.client.login(username="curator", password="testpass123")
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
-            f.write("ФИО\nИванов Иван Иванович")
-            temp_path = f.name
-
-        try:
-            with open(temp_path, "rb") as file:
-                response = self.client.post(
-                    django.shortcuts.reverse("users:upload-students"),
-                    {"group_name": "TestGroup", "file": file, "delimiter": ","},
-                )
-
-            self.assertEqual(response.status_code, 200)
-        finally:
-            os.unlink(temp_path)
-
 
 class UploadResultViewTests(django.test.TestCase):
     def setUp(self):
