@@ -1,7 +1,4 @@
 __all__ = []
-import os
-import tempfile
-
 import django.contrib.auth.models as auth_models
 import django.shortcuts
 import django.test
