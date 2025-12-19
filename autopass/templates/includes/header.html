@@ -29,7 +29,7 @@
             {% if user.profile.role != "куратор" %}
               <a href="{% url 'users:profile' %}" class="btn btn-outline-dark btn-sm d-flex align-items-center">
                 <i class="bi bi-person-circle me-1"></i>
-                <span>{{ user.username }}</span>
+                <span>{{ user.first_name }} {{ user.last_name }} {{ user.profile.middle_name }}</span>
               </a>
             {% else %}
               <a href="{% url 'users:upload-students' %}" class="btn btn-outline-dark btn-sm d-flex align-items-center">
