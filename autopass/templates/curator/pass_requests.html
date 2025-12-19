@@ -99,14 +99,6 @@
                                         <form method="post" class="d-grid gap-2">
                                             {% csrf_token %}
                                             <input type="hidden" name="pass_id" value="{{ pass.id }}">
-
-                                            <button type="submit" name="status" value="Verify" class="btn btn-sm btn-success">
-                                                <i class="bi bi-check-lg me-1"></i>Принять
-                                            </button>
-
-                                            <button type="submit" name="status" value="NotFilledIn" class="btn btn-sm btn-outline-secondary" disabled>
-                                                Уже не заполнено
-                                            </button>
                                         </form>
                                     </div>
                                 </div>
