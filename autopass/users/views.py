@@ -21,6 +21,7 @@ import django.utils.decorators
 import django.utils.timezone
 import django.views.generic
 
+import curator.views
 import passes.models
 import users.forms
 import users.models
@@ -185,19 +186,12 @@ class UploadAvatarApiView(django.views.generic.View):
             )
 
 
-@django.utils.decorators.method_decorator(
-    django.contrib.auth.decorators.login_required,
-    name="dispatch",
-)
-class UploadStudentsView(django.views.generic.FormView):
+class UploadStudentsView(
+    curator.views.CuratorRequiredMixin,
+    django.views.generic.FormView,
+):
     template_name = "pdf/upload_students.html"
     form_class = users.forms.UploadFileForm
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.profile.role != "куратор":
-            return django.http.HttpResponseNotFound()
-
-        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         group_name = form.cleaned_data["group_name"]
@@ -299,19 +293,12 @@ class UploadResultView(django.views.generic.TemplateView):
         return context
 
 
-@django.utils.decorators.method_decorator(
-    django.contrib.auth.decorators.login_required,
-    name="dispatch",
-)
-class ResetStudentsView(django.views.generic.FormView):
+class ResetStudentsView(
+    curator.views.CuratorRequiredMixin,
+    django.views.generic.FormView,
+):
     template_name = "pdf/reset_students.html"
     form_class = users.forms.ResetStudent
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.profile.role != "куратор":
-            return django.http.HttpResponseNotFound()
-
-        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         token = form.cleaned_data["token"]

@@ -16,9 +16,25 @@
 
       <div class="d-flex gap-3">
         {% if user.is_authenticated %}
+        {% if user.profile.role != "куратор" %}
           <a href="{% url 'users:profile' %}" class="btn btn-outline-secondary btn-lg">
             Профиль
           </a>
+        <h5 class="mt-3">
+    Статус вашего пропуска:
+    {% if user.user_pass.status == "NotFilledIn" %}
+        <span class="badge bg-danger">Нет данных / Отклонен</span>
+    {% elif user.user_pass.status == "NotVerify" %}
+        <span class="badge bg-warning text-dark">Не проверен</span>
+    {% elif user.user_pass.status == "Verify" %}
+        <span class="badge bg-success">Проверен</span>
+    {% elif user.user_pass.status == "Printed" %}
+        <span class="badge" style="background-color: #FFD700; color: #000;">Напечатан</span>
+    {% else %}
+        <span class="badge bg-secondary">{{ user.user_pass.status }}</span>
+    {% endif %}
+</h5>
+        {% endif %}
         {% else %}
           <a href="{% url 'users:login-student' %}" class="btn btn-warning btn-lg">
             Войти

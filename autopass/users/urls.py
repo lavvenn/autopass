@@ -51,5 +51,5 @@ urlpatterns = [
         users.views.UploadResultView.as_view(),
         name="upload-result",
     ),
-    path("reset/", users.views.ResetStudentsView.as_view(), name="upload-students"),
+    path("reset/", users.views.ResetStudentsView.as_view(), name="reset"),
 ]

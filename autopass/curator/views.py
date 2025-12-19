@@ -1,4 +1,4 @@
-__all__ = ("PassRequestsView",)
+__all__ = ("CuratorRequiredMixin", "PassRequestsView")
 import django.contrib.auth.decorators
 import django.http
 import django.shortcuts
@@ -10,19 +10,20 @@ import passes.models
 import users.models
 
 
-@django.utils.decorators.method_decorator(
-    django.contrib.auth.decorators.login_required,
-    name="dispatch",
-)
-class PassRequestsView(django.views.generic.ListView):
-    template_name = "curator/pass_requests.html"
-    context_object_name = "passes"
-
+class CuratorRequiredMixin:
+    @django.utils.decorators.method_decorator(
+        django.contrib.auth.decorators.login_required,
+    )
     def dispatch(self, request, *args, **kwargs):
         if request.user.profile.role != "куратор":
             return django.http.HttpResponseNotFound()
 
         return super().dispatch(request, *args, **kwargs)
+
+
+class PassRequestsView(CuratorRequiredMixin, django.views.generic.ListView):
+    template_name = "curator/pass_requests.html"
+    context_object_name = "passes"
 
     def get_queryset(self):
         led_groups = users.models.GroupLeader.objects.filter(curator=self.request.user)
