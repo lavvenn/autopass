@@ -17,7 +17,15 @@ class GroupsViewTest(TestCase):
         self.group1 = Group.objects.create(name="security")
         self.group2 = Group.objects.create(name="admin")
 
+        self.admin = User.objects.create_superuser(
+            username="admin",
+            password="testpass123",
+            first_name="John",
+            last_name="Doe2",
+        )
+
     def test_groups_view_lists_all_groups(self):
+        self.client.force_login(self.admin)
         response = self.client.get(reverse("passes:groups"))
         self.assertEqual(response.status_code, 200)
         self.assertIn("groups", response.context)
@@ -34,11 +42,19 @@ class DownloadAllGroupPassesViewTest(TestCase):
             first_name="John",
             last_name="Doe",
         )
+        self.admin = User.objects.create_superuser(
+            username="admin",
+            password="testpass123",
+            first_name="John",
+            last_name="Doe2",
+        )
         self.user.groups.add(self.group)
 
     @patch("card_maker.card_maker.ImageEditor")
     @patch("shutil.make_archive")
     def test_download_all_group_passes(self, mock_archive, mock_editor):
+        self.client.force_login(self.admin)
+
         mock_instance = MagicMock()
         mock_editor.return_value = mock_instance
 

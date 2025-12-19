@@ -4,12 +4,17 @@ import shutil
 import tempfile
 
 import django.contrib
+import django.contrib.admin.views.decorators
 import django.views.generic
 
 import card_maker.card_maker
 import passes.models
 
 
+@django.utils.decorators.method_decorator(
+    django.contrib.admin.views.decorators.staff_member_required,
+    name="dispatch",
+)
 class GroupsView(django.views.generic.ListView):
     template_name = "passes/group.html"
     context_object_name = "groups"
@@ -19,6 +24,10 @@ class GroupsView(django.views.generic.ListView):
         return django.contrib.auth.models.Group.objects.all()
 
 
+@django.utils.decorators.method_decorator(
+    django.contrib.admin.views.decorators.staff_member_required,
+    name="dispatch",
+)
 class DownloadAllGroupPassesView(django.views.generic.View):
     def get(self, request, group_id):
 
@@ -26,10 +35,6 @@ class DownloadAllGroupPassesView(django.views.generic.View):
         passes_list = passes.models.Pass.objects.filter(
             user__groups=group,
             status="Verify",
-        )
-
-        print(
-            group.name,
         )
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -62,14 +67,3 @@ class DownloadAllGroupPassesView(django.views.generic.View):
             )
             response["Content-Disposition"] = f'attachment; filename="{group.name}.zip"'
             return response
-
-
-class PassesGroupView(django.views.generic.ListView):
-    template_name = "passes/passes_group.html"
-    context_object_name = "passes"
-    model = passes.models.Pass
-
-    def get_queryset(self):
-        return passes.models.Pass.objects.filter(
-            user__groups__name="security",
-        )
