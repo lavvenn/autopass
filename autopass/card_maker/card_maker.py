@@ -1,6 +1,7 @@
 __all__ = ()
 
 import os
+
 import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageFont
