@@ -24,3 +24,8 @@ if django.conf.settings.DEBUG:
         django.conf.settings.MEDIA_URL,
         document_root=django.conf.settings.MEDIA_ROOT,
     )
+
+    urlpatterns += static(
+        django.conf.settings.STATIC_URL,
+        document_root=django.conf.settings.STATICFILES_DIRS[0],
+    )

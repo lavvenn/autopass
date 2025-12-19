@@ -21,10 +21,10 @@ import django.utils.decorators
 import django.utils.timezone
 import django.views.generic
 
+import passes.models
 import users.forms
 import users.models
 import users.utils
-import passes.models
 
 
 class SignUpView(django.views.generic.View):
@@ -48,6 +48,7 @@ class SignUpView(django.views.generic.View):
                 user=user,
                 role="куратор",
             )
+
             if not user.is_active:
                 django.core.mail.send_mail(
                     subject="Подтвердите вашу почту",
@@ -167,7 +168,8 @@ class UploadAvatarApiView(django.views.generic.View):
             profile.save()
 
             passes.models.Pass.objects.filter(user=request.user).update(
-                status="NotVerify",)
+                status="NotVerify",
+            )
             return django.http.JsonResponse(
                 {
                     "status": "success",
@@ -178,7 +180,7 @@ class UploadAvatarApiView(django.views.generic.View):
 
         except Exception:
             return django.http.JsonResponse(
-                {"status": "error", "message": f"Ошибка сервера"},
+                {"status": "error", "message": "Ошибка сервера"},
                 status=500,
             )
 

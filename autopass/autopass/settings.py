@@ -19,7 +19,7 @@ def is_true(value):
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "fake-key")
 
-DEBUG = is_true(os.getenv("DJANGO_DEBUG", "false"))
+DEBUG = is_true(os.getenv("DJANGO_DEBUG", "true"))
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "*").split(",")
 
@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # created apps
+    "curator.apps.CuratorConfig",
     "passes.apps.PassConfig",
     "users.apps.UsersConfig",
     "homepage.apps.HomepageConfig",
@@ -133,7 +134,6 @@ APPEND_SLASH = True
 
 
 MEDIA_URL = "/media/"
-
 
 
 MEDIA_ROOT = BASE_DIR / "media"

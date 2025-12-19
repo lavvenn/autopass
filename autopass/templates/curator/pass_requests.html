@@ -2,50 +2,129 @@
 
 {% block content %}
 <div class="container py-4">
-    <div class="row">
-        {% for pass in passes %}
-        <div class="col-md-4 mb-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <div class="mb-3">
-                        {% if pass.user.profile.avatar %}
-                        <img src="{{ pass.user.profile.avatar.url }}" 
-                             class="rounded-circle" 
-                             style="width: 100px; height: 100px; object-fit: cover;">
-                        {% else %}
-                        <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center" 
-                             style="width: 100px; height: 100px;">
-                            <i class="bi bi-person text-white" style="font-size: 40px;"></i>
+    <div class="mb-5">
+        <h3 class="border-bottom pb-2 mb-4">
+            <i class="bi bi-hourglass-split me-2"></i>На проверке
+        </h3>
+        <div class="row">
+            {% for pass in passes %}
+                {% if pass.status == "NotVerify" %}
+                    {% ifchanged pass.user.groups.all.0.name %}
+                        {% if not forloop.first %}</div>{% endif %}
+                        <div class="mb-4">
+                            <h5 class="text-muted">
+                                <i class="bi bi-people-fill me-1"></i>{{ pass.user.groups.all.0.name }}
+                            </h5>
+                            <div class="row">
+                    {% endifchanged %}
+
+                    <div class="col-md-4 mb-4">
+                        <div class="card text-center h-100">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    {% if pass.user.profile.avatar %}
+                                    <img src="{{ pass.user.profile.avatar.url }}"
+                                         class="rounded-circle"
+                                         style="width: 100px; height: 100px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center"
+                                         style="width: 100px; height: 100px;">
+                                        <i class="bi bi-person text-white" style="font-size: 40px;"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <h5>{{ pass.user.last_name }} {{ pass.user.first_name }}</h5>
+
+                                {% if pass.user.profile.middle_name and pass.user.profile.middle_name != "-" %}
+                                <p class="text-muted mb-2">{{ pass.user.profile.middle_name }}</p>
+                                {% endif %}
+
+                                <div class="mb-3">
+                                    <span class="badge bg-info">Не проверен</span>
+                                </div>
+
+                                <form method="post" class="d-grid gap-2">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="pass_id" value="{{ pass.id }}">
+
+                                    <button type="submit" name="status" value="Verify" class="btn btn-success">
+                                        <i class="bi bi-check-lg me-1"></i>Принять
+                                    </button>
+
+                                    <button type="submit" name="status" value="NotFilledIn" class="btn btn-outline-danger">
+                                        <i class="bi bi-x-lg me-1"></i>Отклонить
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if forloop.last %}</div></div>{% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+ <div class="mt-5">
+        <h3 class="border-bottom pb-2 mb-4">
+            <i class="bi bi-file-x me-2"></i>Не заполнено
+        </h3>
+
+        {% regroup passes by user.groups.all.0.name as grouped_passes %}
+
+        {% for group in grouped_passes %}
+            {% with not_filled=group.list|dictsort:"user.last_name" %}
+            {% if not_filled.0.status == "NotFilledIn" %}
+            <div class="mb-4">
+                <h5 class="text-muted">
+                    <i class="bi bi-people-fill me-1"></i>{{ group.grouper }}
+                </h5>
+                <div class="row">
+                    {% for pass in not_filled %}
+                        {% if pass.status == "NotFilledIn" %}
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100 border-warning">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">
+                                        {{ pass.user.last_name }} {{ pass.user.first_name }}
+                                    </h6>
+
+                                    {% if pass.user.profile.middle_name and pass.user.profile.middle_name != "-" %}
+                                    <p class="text-muted small mb-2">{{ pass.user.profile.middle_name }}</p>
+                                    {% endif %}
+
+                                    <span class="badge bg-warning">Не заполнено</span>
+
+                                    <div class="mt-3">
+                                        <form method="post" class="d-grid gap-2">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="pass_id" value="{{ pass.id }}">
+
+                                            <button type="submit" name="status" value="Verify" class="btn btn-sm btn-success">
+                                                <i class="bi bi-check-lg me-1"></i>Принять
+                                            </button>
+
+                                            <button type="submit" name="status" value="NotFilledIn" class="btn btn-sm btn-outline-secondary" disabled>
+                                                Уже не заполнено
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         {% endif %}
-                    </div>
-                    
-                    <h5>{{ pass.user.last_name }} {{ pass.user.first_name }}</h5>
-                    
-                    <div class="mb-3">
-                        <span class="badge bg-{% if pass.status == 'принят' %}success{% elif pass.status == 'отклонен' %}danger{% else %}warning{% endif %}">
-                            {{ pass.status|default:"На рассмотрении" }}
-                        </span>
-                    </div>
-                    
-                    {% if pass.status != 'принят' and pass.status != 'отклонен' %}
-                    <form method="post" class="d-grid gap-2">
-                        {% csrf_token %}
-                        <input type="hidden" name="pass_id" value="{{ pass.id }}">
-                        
-                        <button type="submit" name="status" value="принят" class="btn btn-success">
-                            Принять
-                        </button>
-                        
-                        <button type="submit" name="status" value="отклонен" class="btn btn-danger">
-                            Отклонить
-                        </button>
-                    </form>
-                    {% endif %}
+                    {% endfor %}
                 </div>
             </div>
-        </div>
+            {% endif %}
+            {% endwith %}
         {% endfor %}
     </div>
-</div>
+
+    {% if not passes %}
+    <div class="text-center py-5">
+        <i class="bi bi-inbox display-1 text-muted mb-3"></i>
+        <h5 class="text-muted">Нет заявок на проверку</h5>
+    </div>
+    {% endif %}
 {% endblock %}

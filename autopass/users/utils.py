@@ -6,8 +6,8 @@ import django.db
 import django.template.loader
 import pandas
 
-import users.models
 import passes.models
+import users.models
 
 
 def create_student(*args, group_id=0):

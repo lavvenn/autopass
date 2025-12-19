@@ -13,6 +13,12 @@ from users.models import Profile, User
 
 
 class EmailOrUsernameModelBackend(django.contrib.auth.backends.ModelBackend):
+    def _is_email(self, value):
+        try:
+            django.core.validators.validate_email(value)
+            return True
+        except django.core.exceptions.ValidationError:
+            return False
 
     def authenticate(self, request, username=None, password=None, **kwargs):
         if not username or not password:
