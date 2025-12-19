@@ -45,6 +45,11 @@
                 <span>Отобрать</span>
               </a>
             {% endif %}
+            {% if request.user.is_authenticated and request.user.is_staff %}
+                <a class="btn btn-outline-dark btn-sm d-flex align-items-center" href="{% url 'admin:index' %}">Админ панель</a>
+                <a class="btn btn-outline-dark btn-sm d-flex align-items-center" href="{% url 'passes:groups' %}">Печать</a>
+
+            {% endif %}
             <form method="post" action="{% url 'users:logout' %}" class="m-0">
               {% csrf_token %}
               <button type="submit" class="btn btn-danger btn-sm d-flex align-items-center">
