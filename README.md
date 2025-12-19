@@ -23,8 +23,8 @@ A very convenient pass creation system
 ## Clone repo
 
 ``` bash
-git clone https://gitlab.crja72.ru/django/2025/autumn/course/students/199297-iliakhalzov-course-1474.git
-cd 199297-iliakhalzov-course-1474
+git clone https://gitlab.crja72.ru/django/2025/autumn/course/projects/team-9.git
+cd team-9
 ```
 
 ### Create and activate virualenv
@@ -59,7 +59,6 @@ cp template.env .env
 cd lyceum 
 python3 manage.py migrate
 python3 manage.py collectstatic
-django-admin compilemessages
 ```
 
 ### Create admin acc
@@ -94,6 +93,6 @@ python3 manage.py runserver
 
 ### Data base
 
-![ER](http://localhost:8000/)
+![data base ER diogram](schema.png)
 
 ### http://localhost:8000/
