@@ -16,9 +16,6 @@
 
       <div class="d-flex gap-3">
         {% if user.is_authenticated %}
-          <a href="{% url 'organizations:group_list' %}" class="btn btn-warning btn-lg">
-            Мои организации
-          </a>
           <a href="{% url 'users:profile' %}" class="btn btn-outline-secondary btn-lg">
             Профиль
           </a>

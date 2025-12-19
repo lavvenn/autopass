@@ -35,7 +35,6 @@ INSTALLED_APPS = [
     "passes.apps.PassConfig",
     "users.apps.UsersConfig",
     "homepage.apps.HomepageConfig",
-    "organizations.apps.OrganizationsConfig",
 ]
 
 
