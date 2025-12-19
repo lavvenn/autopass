@@ -325,8 +325,7 @@ class ResetStudentsView(
                 f"class='alert-link'>общей таблице</a>. \nНовый логин: {new_token}",
             )
             return django.shortcuts.redirect(self.request.path_info)
-        except Exception as e:
-            print(e)
+        except Exception:
             form.add_error(
                 "token",
                 "Такой студент не существует или у вас нет прав на его изменения",

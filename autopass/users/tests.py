@@ -1,0 +1,153 @@
+__all__ = []
+
+import django.contrib.auth.models as auth_models
+import django.shortcuts
+import django.test
+
+import users.forms
+import users.models
+
+
+class SignUpViewTests(django.test.TestCase):
+    def test_get_returns_200(self):
+        response = django.test.Client().get(django.shortcuts.reverse("users:signup"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_valid_creates_user(self):
+        data = {
+            "username": "testuser",
+            "email": "test@example.com",
+            "password1": "testpass123",
+            "password2": "testpass123",
+        }
+        django.test.Client().post(
+            django.shortcuts.reverse("users:signup"),
+            data,
+        )
+        self.assertEqual(
+            auth_models.User.objects.filter(username="testuser").count(),
+            1,
+        )
+
+
+class ActivateUserViewTests(django.test.TestCase):
+    def setUp(self):
+        self.user = auth_models.User.objects.create_user(
+            username="testuser",
+            password="testpass123",
+            is_active=False,
+        )
+        users.models.Profile.objects.create(user=self.user, role="куратор")
+
+    def test_get_returns_404_for_invalid_user(self):
+        response = django.test.Client().get(
+            django.shortcuts.reverse(
+                "users:activate",
+                kwargs={"username": "nonexistent"},
+            ),
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_activates_user_within_12_hours(self):
+        django.test.Client().get(
+            django.shortcuts.reverse("users:activate", kwargs={"username": "testuser"}),
+        )
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.is_active)
+
+
+class UploadAvatarPageViewTests(django.test.TestCase):
+    def setUp(self):
+        self.client = django.test.Client()
+        self.student_user = auth_models.User.objects.create_user(
+            username="student",
+            password="testpass123",
+        )
+        users.models.Profile.objects.create(
+            user=self.student_user,
+            role="ученик",
+            middle_name="",
+        )
+
+    def test_get_returns_200_for_student(self):
+        self.client.login(username="student", password="testpass123")
+        response = self.client.get(django.shortcuts.reverse("users:profile"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_returns_404_for_curator(self):
+        curator_user = auth_models.User.objects.create_user(
+            username="curator",
+            password="testpass123",
+        )
+        users.models.Profile.objects.create(
+            user=curator_user,
+            role="куратор",
+            middle_name="",
+        )
+        self.client.login(username="curator", password="testpass123")
+        response = self.client.get(django.shortcuts.reverse("users:profile"))
+        self.assertEqual(response.status_code, 404)
+
+
+class UploadStudentsViewTests(django.test.TestCase):
+    def setUp(self):
+        self.client = django.test.Client()
+        self.curator_user = auth_models.User.objects.create_user(
+            username="curator",
+            password="testpass123",
+        )
+        users.models.Profile.objects.create(
+            user=self.curator_user,
+            role="куратор",
+            middle_name="",
+        )
+
+    def test_get_returns_200_for_curator(self):
+        self.client.login(username="curator", password="testpass123")
+        response = self.client.get(django.shortcuts.reverse("users:upload-students"))
+        self.assertEqual(response.status_code, 200)
+
+
+class ResetStudentsViewTests(django.test.TestCase):
+    def setUp(self):
+        self.client = django.test.Client()
+        self.curator_user = auth_models.User.objects.create_user(
+            username="curator",
+            password="testpass123",
+        )
+        self.student_user = auth_models.User.objects.create_user(
+            username="0001-a0b1c2",
+            password="testpass123",
+        )
+        users.models.Profile.objects.create(
+            user=self.curator_user,
+            role="куратор",
+            middle_name="",
+        )
+        users.models.Profile.objects.create(
+            user=self.student_user,
+            role="ученик",
+            middle_name="Иванович",
+        )
+        self.group = auth_models.Group.objects.create(name="Test Group")
+        users.models.GroupLeader.objects.create(
+            group=self.group,
+            curator=self.curator_user,
+        )
+        self.student_user.groups.add(self.group)
+
+    def test_get_returns_200_for_curator(self):
+        self.client.login(username="curator", password="testpass123")
+        response = self.client.get(django.shortcuts.reverse("users:reset"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_resets_student_token(self):
+        self.client.login(username="curator", password="testpass123")
+        self.client.post(
+            django.shortcuts.reverse("users:reset"),
+            {"token": "0001-a0b1c2"},
+        )
+        self.assertEqual(
+            auth_models.User.objects.filter(username="0001-a0b1c2").count(),
+            0,
+        )
