@@ -1,8 +1,14 @@
 __all__ = ()
 
 import os
+import PIL.Image
+import PIL.ImageDraw
+import PIL.ImageFont
 
-from PIL import Image, ImageDraw
+font = PIL.ImageFont.truetype(
+    os.path.join(os.path.dirname(__file__), "arial_bolditalicmt.ttf"),
+    40,
+)
 
 
 class ImageEditor:
@@ -22,13 +28,13 @@ class ImageEditor:
 
     def create_rounded_image(self, photo_path: str):
         def prepare_mask(antialias=2):
-            mask = Image.new(
+            mask = PIL.Image.new(
                 "L",
                 (self.circle_size[0] * antialias, self.circle_size[1] * antialias),
                 0,
             )
-            ImageDraw.Draw(mask).ellipse((0, 0) + mask.size, fill=255)
-            return mask.resize(self.circle_size, Image.LANCZOS)
+            PIL.ImageDraw.Draw(mask).ellipse((0, 0) + mask.size, fill=255)
+            return mask.resize(self.circle_size, PIL.Image.LANCZOS)
 
         def crop(im, s):
             w, h = im.size
@@ -41,15 +47,15 @@ class ImageEditor:
                 bottom = top + w
                 im = im.crop((0, top, w, bottom))
 
-            return im.resize(s, Image.LANCZOS)
+            return im.resize(s, PIL.Image.LANCZOS)
 
-        im = Image.open(photo_path)
+        im = PIL.Image.open(photo_path)
         im = crop(im, self.circle_size)
         im.putalpha(prepare_mask())
         return im
 
-    def put_photo_in_template(self, image: Image):
-        im = Image.open(self.template_path)
+    def put_photo_in_template(self, image: PIL.Image.Image):
+        im = PIL.Image.open(self.template_path)
         im.paste(
             image,
             self.photo_position,
@@ -59,12 +65,12 @@ class ImageEditor:
 
     def draw_text_on_image(
         self,
-        image: Image,
+        image: PIL.Image.Image,
         text: str,
         final_name: str,
     ):
-        draw = ImageDraw.Draw(image)
-        draw.text(self.text_position, text, (8, 37, 103))
+        draw = PIL.ImageDraw.Draw(image)
+        draw.text(self.text_position, text, (8, 37, 103), font, angle=90)
         os.makedirs(self.output_path, exist_ok=True)
         image.save(f"{self.output_path}/{final_name}")
         return image

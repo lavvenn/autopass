@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Группы{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Группы</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} mb-3">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% if groups %}
+        <div class="list-group">
+            {% for group in groups %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">{{ group.name }}</h5>
+                        <small class="text-muted">Пользователей: {{ group.user_set.count }}</small>
+                    </div>
+                    <a href="{% url 'passes:download_group_passes' group.id %}" class="btn btn-sm btn-outline-primary">скачать</a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">Группы не найдены.</p>
+    {% endif %}
+</div>
+{% endblock %}
