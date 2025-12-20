@@ -7,8 +7,8 @@ import PIL.ImageDraw
 import PIL.ImageFont
 
 font = PIL.ImageFont.truetype(
-    os.path.join(os.path.dirname(__file__), "arial_bolditalicmt.ttf"),
-    40,
+    os.path.join(os.path.dirname(__file__), "Wadik.otf"),
+    90,
 )
 
 

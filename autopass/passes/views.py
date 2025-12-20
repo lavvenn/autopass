@@ -44,9 +44,9 @@ class DownloadAllGroupPassesView(django.views.generic.View):
                 im = card_maker.card_maker.ImageEditor(
                     template_path="template.png",
                     output_path=temp_dir,
-                    circle_size=(250, 250),
-                    photo_position=(50, 100),
-                    text_position=(350, 400),
+                    circle_size=(760, 760),
+                    photo_position=(155, 165),
+                    text_position=(950, 500),
                 )
 
                 im.create_final_image(
