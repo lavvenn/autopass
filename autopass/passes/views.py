@@ -46,7 +46,7 @@ class DownloadAllGroupPassesView(django.views.generic.View):
                     output_path=temp_dir,
                     circle_size=(760, 760),
                     photo_position=(155, 165),
-                    text_position=(950, 500),
+                    text_position=(950, 600),
                 )
 
                 im.create_final_image(
