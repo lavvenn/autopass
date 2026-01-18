@@ -1,6 +1,7 @@
 # Auto pass
 
-![Pipeline Status Linting](https://gitlab.crja72.ru/django/2025/autumn/course/projects/team-9/badges/main/pipeline.svg?key_text=Lint%20and%20Test&key_width=130)
+[![CI Status](https://github.com/lavvenn/autopass/workflows/django/badge.svg)](https://github.com/lavvenn/autopass/actions)
+
 
 ## description
 
