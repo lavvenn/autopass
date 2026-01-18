@@ -27,4 +27,5 @@ jobs:
         pip install -r requirements/develop.txt
     - name: Run Tests
       run: |
+        cd autopass
         python manage.py test
